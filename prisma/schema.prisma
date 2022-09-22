@@ -23,6 +23,7 @@ model User {
 
 model Post {
     id     String @id @default(cuid())
+    title  String
     body   String
     user   User   @relation(fields: [userId], references: [id])
     userId String
