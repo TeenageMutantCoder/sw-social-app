@@ -13,7 +13,9 @@ TODO
 1. Clone the repository using `git clone git@github.com:TeenageMutantCoder/sw-social-app.git` or `git clone https://github.com/TeenageMutantCoder/sw-social-app`
 2. Change to the repository directory using `cd sw-social-app`
 3. Make a copy of `.env.example` and rename it to `.env` using `cp .env.example .env` (if using a Unix-based system) or `copy .env.example .env` (if using Windows)
-4. Run the development server using `npm run dev`
+4. Install needed dependencies with `npm install`
+5. Create local database with `npx prisma db push`
+6. Run the development server using `npm run dev`
 
 ## Tech stack
 
