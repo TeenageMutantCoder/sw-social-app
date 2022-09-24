@@ -12,10 +12,11 @@ Visit [https://sw-social-app.vercel.app/](https://sw-social-app.vercel.app/)
 
 1. Clone the repository using `git clone git@github.com:TeenageMutantCoder/sw-social-app.git` or `git clone https://github.com/TeenageMutantCoder/sw-social-app`
 2. Change to the repository directory using `cd sw-social-app`
-3. Make a copy of `.env.example` and rename it to `.env` using `cp .env.example .env` (if using a Unix-based system) or `copy .env.example .env` (if using Windows)
-4. Install needed dependencies with `npm install`
-5. Create local database with `npx prisma db push`
-6. Run the development server using `npm run dev`
+3. Make a copy of [.env.example](.env.example) and rename it to `.env` using `cp .env.example .env` (if using a Unix-based system) or `copy .env.example .env` (if using Windows)
+4. For the easiest setup, update the db provider (line 9) in [prisma\schema.prisma](prisma\schema.prisma) to be `"sqlite"`. Otherwise, edit the `DATABASE_URL` in your `.env` file to be the connection string for your PostgreSQL database
+5. Install needed dependencies with `npm install`
+6. Create/update database with `npx prisma db push`
+7. Run the development server using `npm run dev`
 
 ## Tech stack
 
@@ -35,7 +36,7 @@ I also included some other helpful libraries such as [DaisyUI](https://daisyui.c
 Here are the features that I will definitely add:
 
 - [x] Name-based user auth (simpler to add and to use, at least for a portfolio project that is not meant to be a production app)
-- [ ] Post (text) creation, editing, and deletion
+- [x] Post (text) creation, editing, and deletion
 - [ ] Likes on posts
 - [ ] Comments (text) on posts (creation, editing, deleting)
 
