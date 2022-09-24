@@ -31,8 +31,9 @@ const Post: NextPage = () => {
           There was an error while deleting this post.
         </Toast>
       )}
-      <Link href="/" className="btn btn-outline">
-        Go back to posts
+
+      <Link href="/">
+        <button className="btn btn-outline">Go back to posts</button>
       </Link>
       {session?.user?.id === getPostQuery.data?.user.id && (
         <div className="flex">
