@@ -4,6 +4,7 @@ import { trpc } from '../../utils/trpc';
 import Link from 'next/link';
 import { useCallback } from 'react';
 import { useSession } from 'next-auth/react';
+import Toast from '../../components/toast';
 
 const Post: NextPage = () => {
   const router = useRouter();
@@ -25,7 +26,12 @@ const Post: NextPage = () => {
 
   return (
     <>
-      <Link href="/" className="btn btn-ghost">
+      {deletePostMutation.isError && (
+        <Toast alertType="error">
+          There was an error while deleting this post.
+        </Toast>
+      )}
+      <Link href="/" className="btn btn-outline">
         Go back to posts
       </Link>
       {session?.user?.id === getPostQuery.data?.user.id && (

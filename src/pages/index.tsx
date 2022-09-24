@@ -5,6 +5,7 @@ import { trpc } from '../utils/trpc';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import { useRouter } from 'next/router';
+import Toast from '../components/toast';
 
 type FormInput = {
   title: string;
@@ -55,9 +56,13 @@ const Home: NextPage = () => {
   const getPostsQuery = trpc.useQuery(['posts.getAllPosts']);
   const router = useRouter();
   const { status } = useSession();
+  const hasDeletedPost = router.query['deleted_post'];
 
   return (
     <>
+      {hasDeletedPost && (
+        <Toast alertType="success">Successfully deleted post.</Toast>
+      )}
       {status === 'authenticated' && <NewPostForm />}
       {status === 'unauthenticated' && (
         <p>
