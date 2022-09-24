@@ -2,16 +2,25 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { trpc } from '../../utils/trpc';
 import Link from 'next/link';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Toast from '../../components/toast';
+import { SubmitHandler, useForm } from 'react-hook-form';
+
+type FormInput = {
+  title: string;
+  body: string;
+};
 
 const Post: NextPage = () => {
+  const { register, handleSubmit, reset } = useForm<FormInput>();
   const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
   const { data: session } = useSession();
   const postId = router.query.id as string;
   const getPostQuery = trpc.useQuery(['posts.getPost', postId]);
   const deletePostMutation = trpc.useMutation(['posts.deletePost']);
+  const updatePostMutation = trpc.useMutation(['posts.updatePost']);
 
   const deletePost = useCallback(() => {
     deletePostMutation.mutateAsync(postId).then(() => {
@@ -19,10 +28,58 @@ const Post: NextPage = () => {
     });
   }, [deletePostMutation, postId, router]);
 
+  const startEditingPost = useCallback(() => {
+    setIsEditing(true);
+  }, [setIsEditing]);
+
+  const stopEditingPost = useCallback(() => {
+    setIsEditing(false);
+  }, [setIsEditing]);
+
+  const onSubmitHandler: SubmitHandler<FormInput> = useCallback(
+    ({ title, body }) => {
+      updatePostMutation.mutateAsync({ id: postId, title, body }).then(() => {
+        reset();
+      });
+    },
+    [updatePostMutation, reset, postId]
+  );
+
   if (getPostQuery.isLoading) return <p>Loading...</p>;
 
   if (getPostQuery.isError)
     return <p>There was an error while getting this post</p>;
+
+  if (isEditing)
+    return (
+      <form name="edit-post" onSubmit={handleSubmit(onSubmitHandler)}>
+        <input
+          className="form-control input input-bordered my-2"
+          placeholder="Title"
+          defaultValue={getPostQuery.data?.title}
+          {...register('title', { required: true })}
+        />
+        <textarea
+          className="form-control textarea textarea-bordered my-2"
+          placeholder="Body"
+          defaultValue={getPostQuery.data?.body}
+          {...register('body', { required: true })}
+        />
+        <div className="flex gap-3 my-4">
+          <input className="form-control btn btn-primary" type="submit" />
+          <button
+            className="form-control btn btn-outline btn-secondary"
+            onClick={stopEditingPost}
+          >
+            Cancel
+          </button>
+          <input
+            className="form-control btn btn-outline btn-accent"
+            type="reset"
+          />
+        </div>
+      </form>
+    );
 
   return (
     <>
@@ -36,9 +93,12 @@ const Post: NextPage = () => {
         <button className="btn btn-outline">Go back to posts</button>
       </Link>
       {session?.user?.id === getPostQuery.data?.user.id && (
-        <div className="flex">
+        <div className="flex gap-3 my-3">
           <button className="btn" onClick={deletePost}>
             Delete
+          </button>
+          <button className="btn" onClick={startEditingPost}>
+            Edit
           </button>
         </div>
       )}
