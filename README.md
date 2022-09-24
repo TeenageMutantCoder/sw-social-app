@@ -22,14 +22,19 @@ TODO
 This project was bootstrapped using [create-t3-app](https://create.t3.gg/). That means that the main technologies used are:
 
 - [Tailwind CSS](https://tailwindcss.com/)
-- [TRPC](https://trpc.io/)
+- [tRPC](https://trpc.io/)
 - [Next.JS](https://nextjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Prisma](https://www.prisma.io/)
+- [NextAuth.js](https://next-auth.js.org/)
+
+I also included some other helpful libraries such as [DaisyUI](https://daisyui.com/) and [React Hook Form](https://react-hook-form.com/).
 
 ## MVP
 
 Here are the features that I will definitely add:
 
-- [ ] User auth
+- [x] Name-based user auth (simpler to add and to use, at least for a portfolio project that is not meant to be a production app)
 - [ ] Post (text) creation, editing, and deletion
 - [ ] Likes on posts
 - [ ] Comments (text) on posts (creation, editing, deleting)
