@@ -6,6 +6,8 @@ generator client {
 }
 
 datasource db {
+    // NOTE: Uncomment the below line and comment out line 11 to for convenient local development
+    // provider = "sqlite"
     provider = "postgresql"
     // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.text annotations in model Account below
     // Further reading: 
