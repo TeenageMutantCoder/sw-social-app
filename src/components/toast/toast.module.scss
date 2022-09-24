@@ -1,0 +1,27 @@
+@keyframes fade-in {
+  0% {
+    transform: translateY(-100vh);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-out {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100vh);
+  }
+}
+
+$animation-duration: 1s;
+$animation-delay: $animation-duration + 3s;
+$animation-easing-function: ease-in-out;
+
+.fade-in-out {
+  animation: $animation-duration $animation-easing-function fade-in,
+    $animation-duration $animation-easing-function $animation-delay fade-out;
+  animation-fill-mode: forwards;
+}
