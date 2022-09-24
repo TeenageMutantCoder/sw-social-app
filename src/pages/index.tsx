@@ -18,9 +18,7 @@ const NewPostForm = () => {
   const { register, handleSubmit, reset } = useForm<FormInput>();
 
   const onSubmitHandler: SubmitHandler<FormInput> = useCallback(
-    (data) => {
-      const { title, body } = data;
-
+    ({ title, body }) => {
       createPost.mutateAsync({ title, body }).then(() => reset());
     },
     [createPost, reset]

@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { createRouter } from './context';
 
-// Example router with queries that can only be hit if the user requesting is signed in
 export const postsRouter = createRouter()
   .query('getAllPosts', {
     async resolve({ ctx }) {
