@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import { signIn, useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { trpc } from '../utils/trpc';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
@@ -17,11 +17,14 @@ const NewPostForm = () => {
   const createPost = trpc.useMutation(['posts.createPost']);
   const { register, handleSubmit, reset } = useForm<FormInput>();
 
-  const onSubmitHandler: SubmitHandler<FormInput> = (data) => {
-    const { title, body } = data;
+  const onSubmitHandler: SubmitHandler<FormInput> = useCallback(
+    (data) => {
+      const { title, body } = data;
 
-    createPost.mutateAsync({ title, body }).then(() => reset());
-  };
+      createPost.mutateAsync({ title, body }).then(() => reset());
+    },
+    [createPost, reset]
+  );
 
   if (!isOpen)
     return (
