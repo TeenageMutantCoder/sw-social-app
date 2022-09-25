@@ -40,9 +40,11 @@ const Post: NextPage = () => {
     ({ title, body }) => {
       updatePostMutation.mutateAsync({ id: postId, title, body }).then(() => {
         reset();
+        stopEditingPost();
+        getPostQuery.refetch();
       });
     },
-    [updatePostMutation, reset, postId]
+    [updatePostMutation, reset, postId, stopEditingPost, getPostQuery]
   );
 
   if (getPostQuery.isLoading) return <p>Loading...</p>;
@@ -86,6 +88,12 @@ const Post: NextPage = () => {
       {deletePostMutation.isError && (
         <Toast alertType="error">
           There was an error while deleting this post.
+        </Toast>
+      )}
+
+      {updatePostMutation.isError && (
+        <Toast alertType="error">
+          There was an error while editing this post.
         </Toast>
       )}
 
