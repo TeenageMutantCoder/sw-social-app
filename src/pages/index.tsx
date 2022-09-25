@@ -12,16 +12,22 @@ type FormInput = {
   body: string;
 };
 
-const NewPostForm = () => {
+const NewPostForm = ({ refetchPosts }: { refetchPosts: () => void }) => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const createPost = trpc.useMutation(['posts.createPost']);
   const { register, handleSubmit, reset } = useForm<FormInput>();
 
   const onSubmitHandler: SubmitHandler<FormInput> = useCallback(
     ({ title, body }) => {
-      createPost.mutateAsync({ title, body }).then(() => reset());
+      createPost.mutateAsync({ title, body }).then(() => {
+        reset();
+        setIsOpen(false);
+        refetchPosts();
+        router.push('/?created_post=true');
+      });
     },
-    [createPost, reset]
+    [createPost, reset, refetchPosts, router]
   );
 
   if (!isOpen)
@@ -29,7 +35,7 @@ const NewPostForm = () => {
       <button
         className="btn btn-primary"
         onClick={() => {
-          setIsOpen((open) => !open);
+          setIsOpen(true);
         }}
       >
         Create a new post
@@ -58,13 +64,22 @@ const Home: NextPage = () => {
   const router = useRouter();
   const { status } = useSession();
   const hasDeletedPost = router.query['deleted_post'];
+  const hasCreatedPost = router.query['created_post'];
+  const refetchPosts = useCallback(() => {
+    getPostsQuery.refetch();
+  }, [getPostsQuery]);
 
   return (
     <>
       {hasDeletedPost && (
         <Toast alertType="success">Successfully deleted post.</Toast>
       )}
-      {status === 'authenticated' && <NewPostForm />}
+      {hasCreatedPost && (
+        <Toast alertType="success">Successfully created post.</Toast>
+      )}
+      {status === 'authenticated' && (
+        <NewPostForm refetchPosts={refetchPosts} />
+      )}
       {status === 'unauthenticated' && (
         <p>
           Please{' '}
