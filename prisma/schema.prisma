@@ -24,16 +24,23 @@ model User {
 }
 
 model Post {
-    id     String @id @default(cuid())
-    title  String
-    body   String
-    user   User   @relation(fields: [userId], references: [id])
-    userId String
+    id       String    @id @default(cuid())
+    title    String
+    body     String
+    user     User      @relation(fields: [userId], references: [id])
+    userId   String
+    comments Comment[]
 }
 
 model Comment {
-    id     String @id @default(cuid())
-    body   String
-    user   User   @relation(fields: [userId], references: [id])
-    userId String
+    id        String    @id @default(cuid())
+    body      String
+    user      User      @relation(fields: [userId], references: [id])
+    userId    String
+    post      Post      @relation(fields: [postId], references: [id])
+    postId    String
+    parent    Comment?  @relation("ParentChildComments", fields: [parentId], references: [id])
+    parentId  String?
+    children  Comment[] @relation("ParentChildComments")
+    createdAt DateTime  @default(now())
 }
