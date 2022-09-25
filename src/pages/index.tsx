@@ -63,8 +63,8 @@ const Home: NextPage = () => {
   const getPostsQuery = trpc.useQuery(['posts.getAllPosts']);
   const router = useRouter();
   const { status } = useSession();
-  const hasDeletedPost = router.query['deleted_post'];
-  const hasCreatedPost = router.query['created_post'];
+  const hasDeletedPost = router.query.deleted_post;
+  const hasCreatedPost = router.query.created_post;
   const refetchPosts = useCallback(() => {
     getPostsQuery.refetch();
   }, [getPostsQuery]);
