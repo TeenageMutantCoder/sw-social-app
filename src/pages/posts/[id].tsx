@@ -2,14 +2,92 @@ import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { trpc } from '../../utils/trpc';
 import Link from 'next/link';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Toast from '../../components/toast';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
+type NewCommentFormProps = {
+  postId: string;
+  refetchPost: () => void;
+  parentId?: string;
+};
+
+const NewCommentForm = ({
+  postId,
+  parentId,
+  refetchPost,
+}: NewCommentFormProps) => {
+  const createComment = trpc.useMutation(['comments.createComment']);
+  const { register, handleSubmit, reset } = useForm<FormInput>();
+
+  const onSubmitHandler: SubmitHandler<FormInput> = useCallback(
+    ({ body }) => {
+      createComment
+        .mutateAsync({ body, parentCommentId: parentId, postId })
+        .then(() => {
+          reset();
+          refetchPost();
+        });
+    },
+    [parentId, postId, createComment, reset, refetchPost]
+  );
+
+  return (
+    <form name="new-comment" onSubmit={handleSubmit(onSubmitHandler)}>
+      <textarea
+        className="form-control textarea textarea-bordered my-2"
+        placeholder="Add your comment"
+        {...register('body', { required: true })}
+      />
+      <input className="form-control btn btn-primary my-4" type="submit" />
+    </form>
+  );
+};
+
 type FormInput = {
   title: string;
   body: string;
+};
+
+type CommentProps = {
+  body: string;
+  user: string;
+  childComments: any[] | undefined;
+  postId: string;
+  commentId: string;
+  refetchPost: () => void;
+};
+const Comment = ({
+  body,
+  user,
+  childComments,
+  postId,
+  commentId,
+  refetchPost,
+}: CommentProps) => {
+  return (
+    <div className="ml-3">
+      <p>{body}</p>
+      <p>{user}</p>
+      <NewCommentForm
+        parentId={commentId}
+        postId={postId}
+        refetchPost={refetchPost}
+      />
+      {childComments?.map((child) => (
+        <Comment
+          key={child.id}
+          body={child.body}
+          user={child.user.name}
+          childComments={child.children}
+          postId={postId}
+          commentId={child.id}
+          refetchPost={refetchPost}
+        />
+      ))}
+    </div>
+  );
 };
 
 const Post: NextPage = () => {
@@ -21,6 +99,10 @@ const Post: NextPage = () => {
   const getPostQuery = trpc.useQuery(['posts.getPost', postId]);
   const deletePostMutation = trpc.useMutation(['posts.deletePost']);
   const updatePostMutation = trpc.useMutation(['posts.updatePost']);
+
+  const refetchPost = useCallback(() => {
+    getPostQuery.refetch();
+  }, [getPostQuery]);
 
   const deletePost = useCallback(() => {
     deletePostMutation.mutateAsync(postId).then(() => {
@@ -41,11 +123,47 @@ const Post: NextPage = () => {
       updatePostMutation.mutateAsync({ id: postId, title, body }).then(() => {
         reset();
         stopEditingPost();
-        getPostQuery.refetch();
+        refetchPost();
       });
     },
-    [updatePostMutation, reset, postId, stopEditingPost, getPostQuery]
+    [updatePostMutation, reset, postId, stopEditingPost, refetchPost]
   );
+
+  const commentTree = useMemo(() => {
+    const comments = getPostQuery.data?.comments;
+    const comment = getPostQuery.data?.comments[0];
+    const parentId = comment?.parent?.id;
+    type Comment = typeof comment;
+    type ParentId = typeof parentId;
+    type CommentWithChildren = Comment & {
+      children?: Comment[];
+    };
+    type CommentsWithChildren = CommentWithChildren[];
+
+    const getCommentTreeFromComments = (
+      comments: CommentsWithChildren | undefined,
+      parentId: ParentId
+    ) => {
+      if (comments === undefined || comments.length === 0) return [];
+      const rootComments = comments.filter((comment) => {
+        return comment.parent?.id === parentId;
+      });
+      const otherComments = comments.filter((comment) => {
+        return comment.parent?.id !== parentId;
+      });
+
+      for (let comment of rootComments) {
+        comment.children = getCommentTreeFromComments(
+          otherComments,
+          comment.id
+        );
+      }
+      return rootComments;
+    };
+
+    return getCommentTreeFromComments(comments, undefined);
+  }, [getPostQuery]);
+  console.log(commentTree);
 
   if (getPostQuery.isLoading) return <p>Loading...</p>;
 
@@ -113,6 +231,20 @@ const Post: NextPage = () => {
       <h1 className="text-xl mt-2">{getPostQuery.data?.title}</h1>
       <p className="text-sm">Written by {getPostQuery.data?.user.name}</p>
       <p className="my-5">{getPostQuery.data?.body}</p>
+
+      <NewCommentForm postId={postId} refetchPost={refetchPost} />
+
+      {commentTree.map((comment) => (
+        <Comment
+          key={comment.id}
+          body={comment.body}
+          user={comment.user.name}
+          childComments={comment.children}
+          commentId={comment.id}
+          postId={postId}
+          refetchPost={refetchPost}
+        />
+      ))}
     </>
   );
 };
