@@ -34,6 +34,25 @@ export const postsRouter = createRouter()
               name: true,
             },
           },
+          comments: {
+            select: {
+              id: true,
+              body: true,
+              user: {
+                select: {
+                  name: true,
+                },
+              },
+              parent: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+          },
         },
       });
       return post;
