@@ -74,4 +74,52 @@ export const protectedPostsRouter = createProtectedRouter()
       });
       return deletedPost;
     },
+  })
+  .mutation('reactToPost', {
+    input: z.object({ postId: z.string(), isLike: z.boolean() }),
+    async resolve({ ctx, input }) {
+      const existingReaction = await ctx.prisma.postReaction.findUnique({
+        where: {
+          // eslint-disable-next-line camelcase
+          userId_postId: {
+            userId: ctx.session.user.id,
+            postId: input.postId,
+          },
+        },
+        select: { isLike: true },
+      });
+
+      if (existingReaction?.isLike === input.isLike) {
+        return await ctx.prisma.postReaction.delete({
+          where: {
+            // eslint-disable-next-line camelcase
+            userId_postId: {
+              userId: ctx.session.user.id,
+              postId: input.postId,
+            },
+          },
+        });
+      }
+
+      if (existingReaction) {
+        return await ctx.prisma.postReaction.update({
+          where: {
+            // eslint-disable-next-line camelcase
+            userId_postId: {
+              userId: ctx.session.user.id,
+              postId: input.postId,
+            },
+          },
+          data: { isLike: input.isLike },
+        });
+      }
+
+      return await ctx.prisma.postReaction.create({
+        data: {
+          userId: ctx.session.user.id,
+          postId: input.postId,
+          isLike: input.isLike,
+        },
+      });
+    },
   });

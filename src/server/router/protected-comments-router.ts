@@ -80,4 +80,52 @@ export const protectedCommentsRouter = createProtectedRouter()
       }
       return deletedComment;
     },
+  })
+  .mutation('reactToComment', {
+    input: z.object({ commentId: z.string(), isLike: z.boolean() }),
+    async resolve({ ctx, input }) {
+      const existingReaction = await ctx.prisma.commentReaction.findUnique({
+        where: {
+          // eslint-disable-next-line camelcase
+          userId_commentId: {
+            userId: ctx.session.user.id,
+            commentId: input.commentId,
+          },
+        },
+        select: { isLike: true },
+      });
+
+      if (existingReaction?.isLike === input.isLike) {
+        return await ctx.prisma.commentReaction.delete({
+          where: {
+            // eslint-disable-next-line camelcase
+            userId_commentId: {
+              userId: ctx.session.user.id,
+              commentId: input.commentId,
+            },
+          },
+        });
+      }
+
+      if (existingReaction) {
+        return await ctx.prisma.commentReaction.update({
+          where: {
+            // eslint-disable-next-line camelcase
+            userId_commentId: {
+              userId: ctx.session.user.id,
+              commentId: input.commentId,
+            },
+          },
+          data: { isLike: input.isLike },
+        });
+      }
+
+      return await ctx.prisma.commentReaction.create({
+        data: {
+          userId: ctx.session.user.id,
+          commentId: input.commentId,
+          isLike: input.isLike,
+        },
+      });
+    },
   });
