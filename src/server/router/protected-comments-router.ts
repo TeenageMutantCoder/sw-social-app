@@ -95,8 +95,37 @@ export const protectedCommentsRouter = createProtectedRouter()
         select: { isLike: true },
       });
 
-      if (existingReaction?.isLike === input.isLike) {
-        return await ctx.prisma.commentReaction.delete({
+      const currentComment = await ctx.prisma.comment.findUniqueOrThrow({
+        where: { id: input.commentId },
+        select: {
+          points: true,
+        },
+      });
+
+      const currentPoints = currentComment.points;
+      let reaction, comment;
+
+      // User makes their initial reaction
+      if (!existingReaction) {
+        reaction = await ctx.prisma.commentReaction.create({
+          data: {
+            userId: ctx.session.user.id,
+            commentId: input.commentId,
+            isLike: input.isLike,
+          },
+        });
+
+        comment = await ctx.prisma.comment.update({
+          where: { id: input.commentId },
+          data: {
+            points: input.isLike ? currentPoints + 1 : currentPoints - 1,
+          },
+        });
+      }
+
+      // User removes their existing reaction
+      else if (existingReaction.isLike === input.isLike) {
+        reaction = await ctx.prisma.commentReaction.delete({
           where: {
             // eslint-disable-next-line camelcase
             userId_commentId: {
@@ -105,10 +134,18 @@ export const protectedCommentsRouter = createProtectedRouter()
             },
           },
         });
+
+        comment = await ctx.prisma.comment.update({
+          where: { id: input.commentId },
+          data: {
+            points: input.isLike ? currentPoints - 1 : currentPoints + 1,
+          },
+        });
       }
 
-      if (existingReaction) {
-        return await ctx.prisma.commentReaction.update({
+      // User changes their reaction
+      else {
+        reaction = await ctx.prisma.commentReaction.update({
           where: {
             // eslint-disable-next-line camelcase
             userId_commentId: {
@@ -118,14 +155,15 @@ export const protectedCommentsRouter = createProtectedRouter()
           },
           data: { isLike: input.isLike },
         });
+
+        comment = await ctx.prisma.comment.update({
+          where: { id: input.commentId },
+          data: {
+            points: input.isLike ? currentPoints + 2 : currentPoints - 2,
+          },
+        });
       }
 
-      return await ctx.prisma.commentReaction.create({
-        data: {
-          userId: ctx.session.user.id,
-          commentId: input.commentId,
-          isLike: input.isLike,
-        },
-      });
+      return { reaction, comment };
     },
   });

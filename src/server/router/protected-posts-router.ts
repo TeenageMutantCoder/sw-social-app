@@ -89,8 +89,37 @@ export const protectedPostsRouter = createProtectedRouter()
         select: { isLike: true },
       });
 
-      if (existingReaction?.isLike === input.isLike) {
-        return await ctx.prisma.postReaction.delete({
+      const currentPost = await ctx.prisma.post.findUniqueOrThrow({
+        where: { id: input.postId },
+        select: {
+          points: true,
+        },
+      });
+
+      const currentPoints = currentPost.points;
+      let reaction, post;
+
+      // User makes their initial reaction
+      if (!existingReaction) {
+        reaction = await ctx.prisma.postReaction.create({
+          data: {
+            userId: ctx.session.user.id,
+            postId: input.postId,
+            isLike: input.isLike,
+          },
+        });
+
+        post = await ctx.prisma.post.update({
+          where: { id: input.postId },
+          data: {
+            points: input.isLike ? currentPoints + 1 : currentPoints - 1,
+          },
+        });
+      }
+
+      // User removes their existing reaction
+      else if (existingReaction.isLike === input.isLike) {
+        reaction = await ctx.prisma.postReaction.delete({
           where: {
             // eslint-disable-next-line camelcase
             userId_postId: {
@@ -99,10 +128,18 @@ export const protectedPostsRouter = createProtectedRouter()
             },
           },
         });
+
+        post = await ctx.prisma.post.update({
+          where: { id: input.postId },
+          data: {
+            points: input.isLike ? currentPoints - 1 : currentPoints + 1,
+          },
+        });
       }
 
-      if (existingReaction) {
-        return await ctx.prisma.postReaction.update({
+      // User changes their reaction
+      else {
+        reaction = await ctx.prisma.postReaction.update({
           where: {
             // eslint-disable-next-line camelcase
             userId_postId: {
@@ -112,14 +149,15 @@ export const protectedPostsRouter = createProtectedRouter()
           },
           data: { isLike: input.isLike },
         });
+
+        post = await ctx.prisma.post.update({
+          where: { id: input.postId },
+          data: {
+            points: input.isLike ? currentPoints + 2 : currentPoints - 2,
+          },
+        });
       }
 
-      return await ctx.prisma.postReaction.create({
-        data: {
-          userId: ctx.session.user.id,
-          postId: input.postId,
-          isLike: input.isLike,
-        },
-      });
+      return { reaction, post };
     },
   });
