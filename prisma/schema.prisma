@@ -17,31 +17,55 @@ datasource db {
 }
 
 model User {
-    id       String    @id @default(cuid())
-    name     String    @unique
-    posts    Post[]
-    comments Comment[]
+    id               String            @id @default(cuid())
+    name             String            @unique
+    posts            Post[]
+    comments         Comment[]
+    postReactions    PostReaction[]
+    commentReactions CommentReaction[]
 }
 
 model Post {
-    id       String    @id @default(cuid())
-    title    String
-    body     String
-    user     User      @relation(fields: [userId], references: [id])
-    userId   String
-    comments Comment[]
+    id            String         @id @default(cuid())
+    title         String
+    body          String
+    user          User           @relation(fields: [userId], references: [id])
+    userId        String
+    comments      Comment[]
+    postReactions PostReaction[]
 }
 
 model Comment {
-    id        String    @id @default(cuid())
-    body      String
-    deleted   Boolean   @default(false)
-    user      User      @relation(fields: [userId], references: [id])
+    id               String            @id @default(cuid())
+    body             String
+    deleted          Boolean           @default(false)
+    user             User              @relation(fields: [userId], references: [id])
+    userId           String
+    post             Post              @relation(fields: [postId], references: [id])
+    postId           String
+    parent           Comment?          @relation("ParentChildComments", fields: [parentId], references: [id])
+    parentId         String?
+    children         Comment[]         @relation("ParentChildComments")
+    createdAt        DateTime          @default(now())
+    commentReactions CommentReaction[]
+}
+
+model PostReaction {
+    userId String
+    user   User    @relation(fields: [userId], references: [id])
+    postId String
+    post   Post    @relation(fields: [postId], references: [id])
+    isLike Boolean
+
+    @@unique([userId, postId])
+}
+
+model CommentReaction {
     userId    String
-    post      Post      @relation(fields: [postId], references: [id])
-    postId    String
-    parent    Comment?  @relation("ParentChildComments", fields: [parentId], references: [id])
-    parentId  String?
-    children  Comment[] @relation("ParentChildComments")
-    createdAt DateTime  @default(now())
+    user      User    @relation(fields: [userId], references: [id])
+    commentId String
+    comment   Comment @relation(fields: [commentId], references: [id])
+    isLike    Boolean
+
+    @@unique([userId, commentId])
 }
