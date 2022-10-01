@@ -52,7 +52,8 @@ type FormInput = {
 
 type CommentProps = {
   body: string;
-  user: string;
+  user: { name: string; id: string };
+  isDeleted: boolean;
   childComments: any[] | undefined;
   postId: string;
   commentId: string;
@@ -61,25 +62,97 @@ type CommentProps = {
 const Comment = ({
   body,
   user,
+  isDeleted,
   childComments,
   postId,
   commentId,
   refetchPost,
 }: CommentProps) => {
+  const { register, handleSubmit, reset } = useForm<FormInput>();
+  const { data: session, status } = useSession();
+  const deleteCommentMutation = trpc.useMutation(['comments.deleteComment']);
+  const updateCommentMutation = trpc.useMutation(['comments.updateComment']);
+  const deleteComment = useCallback(() => {
+    deleteCommentMutation.mutateAsync(commentId).then(() => {
+      refetchPost();
+    });
+  }, [refetchPost, deleteCommentMutation, commentId]);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const startEditingComment = useCallback(() => {
+    setIsEditing(true);
+  }, [setIsEditing]);
+
+  const stopEditingComment = useCallback(() => {
+    setIsEditing(false);
+  }, [setIsEditing]);
+
+  const onSubmitHandler: SubmitHandler<FormInput> = useCallback(
+    ({ body }) => {
+      updateCommentMutation.mutateAsync({ id: commentId, body }).then(() => {
+        reset();
+        stopEditingComment();
+        refetchPost();
+      });
+    },
+    [updateCommentMutation, reset, commentId, stopEditingComment, refetchPost]
+  );
+
   return (
     <div className="ml-3">
-      <p>{body}</p>
-      <p>{user}</p>
-      <NewCommentForm
-        parentId={commentId}
-        postId={postId}
-        refetchPost={refetchPost}
-      />
+      {isEditing ? (
+        <form name="edit-post" onSubmit={handleSubmit(onSubmitHandler)}>
+          <textarea
+            className="form-control textarea textarea-bordered my-2"
+            placeholder="Body"
+            defaultValue={body}
+            {...register('body', { required: true })}
+          />
+          <div className="flex gap-3 my-4">
+            <input className="form-control btn btn-primary" type="submit" />
+            <button
+              className="form-control btn btn-outline btn-secondary"
+              onClick={stopEditingComment}
+            >
+              Cancel
+            </button>
+            <input
+              className="form-control btn btn-outline btn-accent"
+              type="reset"
+            />
+          </div>
+        </form>
+      ) : (
+        <>
+          <p>{isDeleted ? 'deleted' : body}</p>
+          <p>{isDeleted ? 'deleted' : user.name}</p>
+        </>
+      )}
+
+      {!isDeleted && session?.user?.id === user.id && (
+        <div className="flex gap-3 my-3">
+          <button className="btn" onClick={deleteComment}>
+            Delete
+          </button>
+          <button className="btn" onClick={startEditingComment}>
+            Edit
+          </button>
+        </div>
+      )}
+
+      {status === 'authenticated' && (
+        <NewCommentForm
+          parentId={commentId}
+          postId={postId}
+          refetchPost={refetchPost}
+        />
+      )}
       {childComments?.map((child) => (
         <Comment
           key={child.id}
           body={child.body}
-          user={child.user.name}
+          isDeleted={child.deleted}
+          user={child.user}
           childComments={child.children}
           postId={postId}
           commentId={child.id}
@@ -94,7 +167,7 @@ const Post: NextPage = () => {
   const { register, handleSubmit, reset } = useForm<FormInput>();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const postId = router.query.id as string;
   const getPostQuery = trpc.useQuery(['posts.getPost', postId]);
   const deletePostMutation = trpc.useMutation(['posts.deletePost']);
@@ -232,13 +305,16 @@ const Post: NextPage = () => {
       <p className="text-sm">Written by {getPostQuery.data?.user.name}</p>
       <p className="my-5">{getPostQuery.data?.body}</p>
 
-      <NewCommentForm postId={postId} refetchPost={refetchPost} />
+      {status === 'authenticated' && (
+        <NewCommentForm postId={postId} refetchPost={refetchPost} />
+      )}
 
       {commentTree.map((comment) => (
         <Comment
           key={comment.id}
           body={comment.body}
-          user={comment.user.name}
+          user={comment.user}
+          isDeleted={comment.deleted}
           childComments={comment.children}
           commentId={comment.id}
           postId={postId}

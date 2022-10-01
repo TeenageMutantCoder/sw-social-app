@@ -38,8 +38,10 @@ export const postsRouter = createRouter()
             select: {
               id: true,
               body: true,
+              deleted: true,
               user: {
                 select: {
+                  id: true,
                   name: true,
                 },
               },

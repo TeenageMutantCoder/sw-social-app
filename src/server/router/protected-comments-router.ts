@@ -53,16 +53,31 @@ export const protectedCommentsRouter = createProtectedRouter()
     async resolve({ ctx, input }) {
       const comment = await ctx.prisma.comment.findUniqueOrThrow({
         where: { id: input },
-        select: { userId: true },
+        select: {
+          userId: true,
+          _count: { select: { children: true } },
+        },
       });
       if (comment.userId !== ctx.session.user.id)
         throw new TRPCError({
           code: 'UNAUTHORIZED',
         });
 
-      const deletedComment = ctx.prisma.comment.delete({
-        where: { id: input },
-      });
+      let deletedComment;
+      // If the comment has children, then deleting the comment would mess up the comment tree.
+      // To avoid this, we will only mark it as deleted in that case.
+      if (comment._count.children > 0) {
+        deletedComment = ctx.prisma.comment.update({
+          where: { id: input },
+          data: {
+            deleted: true,
+          },
+        });
+      } else {
+        deletedComment = ctx.prisma.comment.delete({
+          where: { id: input },
+        });
+      }
       return deletedComment;
     },
   });
