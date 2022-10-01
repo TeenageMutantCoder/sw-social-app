@@ -203,8 +203,8 @@ const Post: NextPage = () => {
   );
 
   const commentTree = useMemo(() => {
-    const comments = getPostQuery.data?.comments;
-    const comment = getPostQuery.data?.comments[0];
+    const comments = getPostQuery.data?.post.comments;
+    const comment = getPostQuery.data?.post.comments[0];
     const parentId = comment?.parent?.id;
     type Comment = typeof comment;
     type ParentId = typeof parentId;
@@ -249,13 +249,13 @@ const Post: NextPage = () => {
         <input
           className="form-control input input-bordered my-2"
           placeholder="Title"
-          defaultValue={getPostQuery.data?.title}
+          defaultValue={getPostQuery.data?.post.title}
           {...register('title', { required: true })}
         />
         <textarea
           className="form-control textarea textarea-bordered my-2"
           placeholder="Body"
-          defaultValue={getPostQuery.data?.body}
+          defaultValue={getPostQuery.data?.post.body}
           {...register('body', { required: true })}
         />
         <div className="flex gap-3 my-4">
@@ -291,7 +291,7 @@ const Post: NextPage = () => {
       <Link href="/">
         <button className="btn btn-outline">Go back to posts</button>
       </Link>
-      {session?.user?.id === getPostQuery.data?.user.id && (
+      {session?.user?.id === getPostQuery.data?.post.user.id && (
         <div className="flex gap-3 my-3">
           <button className="btn" onClick={deletePost}>
             Delete
@@ -301,9 +301,9 @@ const Post: NextPage = () => {
           </button>
         </div>
       )}
-      <h1 className="text-xl mt-2">{getPostQuery.data?.title}</h1>
-      <p className="text-sm">Written by {getPostQuery.data?.user.name}</p>
-      <p className="my-5">{getPostQuery.data?.body}</p>
+      <h1 className="text-xl mt-2">{getPostQuery.data?.post.title}</h1>
+      <p className="text-sm">Written by {getPostQuery.data?.post.user.name}</p>
+      <p className="my-5">{getPostQuery.data?.post.body}</p>
 
       {status === 'authenticated' && (
         <NewCommentForm postId={postId} refetchPost={refetchPost} />
