@@ -38,7 +38,7 @@ Here are the features that I will definitely add:
 - [x] Name-based user auth (simpler to add and to use, at least for a portfolio project that is not meant to be a production app)
 - [x] Post (text) creation, editing, and deletion
 - [ ] Likes on posts
-- [ ] Comments (text) on posts (creation, editing, deleting)
+- [x] Comments (text) on posts (creation, editing, deleting)
 
 ## Future Improvements
 
@@ -50,7 +50,7 @@ Here are other things that I may add in the future:
 - [ ] Direct private messaging
 - [ ] Increased profile customization
 - [ ] Search for posts/comments/users
-- [ ] Save a user's favorited posts/comments
+- [ ] Save a user's favorite posts/comments
 - [ ] Block users
 - [ ] Multimedia posts
 - [ ] Multimedia comments
