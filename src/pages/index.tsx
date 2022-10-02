@@ -94,7 +94,7 @@ const Home: NextPage = () => {
       {getPostsQuery.isError && (
         <p>There was an error while getting the posts.</p>
       )}
-      {getPostsQuery.data?.map(({ id, user, title }) => (
+      {getPostsQuery.data?.map(({ id, user, title, points }) => (
         <div
           key={id}
           className="p-3 mt-2 bg-gray-700 hover:bg-gray-600"
@@ -103,7 +103,7 @@ const Home: NextPage = () => {
             router.push(`/posts/${id}`);
           }}
         >
-          {title} - {user.name}
+          {title} - {user.name} - {points} points
         </div>
       ))}
     </>

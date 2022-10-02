@@ -37,7 +37,7 @@ Here are the features that I will definitely add:
 
 - [x] Name-based user auth (simpler to add and to use, at least for a portfolio project that is not meant to be a production app)
 - [x] Post (text) creation, editing, and deletion
-- [ ] Likes on posts
+- [x] Likes on posts and comments
 - [x] Comments (text) on posts (creation, editing, deleting)
 
 ## Future Improvements
