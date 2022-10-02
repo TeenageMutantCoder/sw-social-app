@@ -8,6 +8,7 @@ export const postsRouter = createRouter()
         select: {
           id: true,
           title: true,
+          points: true,
           user: {
             select: {
               name: true,
@@ -41,6 +42,10 @@ export const postsRouter = createRouter()
               body: true,
               deleted: true,
               points: true,
+              commentReactions: {
+                select: { isLike: true },
+                where: { userId: ctx.session?.user?.id },
+              },
               user: {
                 select: {
                   id: true,
@@ -77,7 +82,8 @@ export const postsRouter = createRouter()
       }
 
       const isLikedByCurrentUser = !!usersPostReaction?.isLike;
-      const isDislikedByCurrentUser = !!usersPostReaction?.isLike;
+      const isDislikedByCurrentUser =
+        usersPostReaction && !usersPostReaction.isLike;
 
       const data = {
         post,

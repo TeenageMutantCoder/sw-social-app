@@ -2,9 +2,11 @@
   "cSpell.words": [
     "camelcase",
     "daisyui",
+    "downvote",
     "nextauth",
     "superjson",
     "tailwindcss",
-    "trpc"
+    "trpc",
+    "Upvote"
   ]
 }

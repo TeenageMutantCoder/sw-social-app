@@ -7,6 +7,36 @@ import { useSession } from 'next-auth/react';
 import Toast from '../../components/toast';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
+type ReactionsProps = {
+  upvote: () => void;
+  downvote: () => void;
+  isLiked: boolean;
+  isDisliked: boolean;
+};
+const Reactions = ({
+  upvote,
+  downvote,
+  isLiked,
+  isDisliked,
+}: ReactionsProps) => {
+  return (
+    <div className="flex my-3">
+      <button
+        className={`btn ${isLiked ? 'bg-green-900' : ''}`}
+        onClick={upvote}
+      >
+        Upvote
+      </button>
+      <button
+        className={`btn ${isDisliked ? 'bg-red-900' : ''}`}
+        onClick={downvote}
+      >
+        Downvote
+      </button>
+    </div>
+  );
+};
+
 type NewCommentFormProps = {
   postId: string;
   refetchPost: () => void;
@@ -53,6 +83,9 @@ type FormInput = {
 type CommentProps = {
   body: string;
   user: { name: string; id: string };
+  points: number;
+  isLiked: boolean;
+  isDisliked: boolean;
   isDeleted: boolean;
   childComments: any[] | undefined;
   postId: string;
@@ -62,6 +95,9 @@ type CommentProps = {
 const Comment = ({
   body,
   user,
+  isLiked,
+  isDisliked,
+  points,
   isDeleted,
   childComments,
   postId,
@@ -98,6 +134,22 @@ const Comment = ({
     [updateCommentMutation, reset, commentId, stopEditingComment, refetchPost]
   );
 
+  const commentReactionMutation = trpc.useMutation(['comments.reactToComment']);
+  const upvoteComment = useCallback(() => {
+    commentReactionMutation
+      .mutateAsync({ isLike: true, commentId })
+      .then(() => {
+        refetchPost();
+      });
+  }, [commentReactionMutation, commentId, refetchPost]);
+  const downvoteComment = useCallback(() => {
+    commentReactionMutation
+      .mutateAsync({ isLike: false, commentId })
+      .then(() => {
+        refetchPost();
+      });
+  }, [commentReactionMutation, commentId, refetchPost]);
+
   return (
     <div className="ml-3">
       {isEditing ? (
@@ -126,6 +178,7 @@ const Comment = ({
         <>
           <p>{isDeleted ? 'deleted' : body}</p>
           <p>{isDeleted ? 'deleted' : user.name}</p>
+          <p>{points} points</p>
         </>
       )}
 
@@ -141,16 +194,33 @@ const Comment = ({
       )}
 
       {status === 'authenticated' && (
-        <NewCommentForm
-          parentId={commentId}
-          postId={postId}
-          refetchPost={refetchPost}
-        />
+        <>
+          {!isDeleted && (
+            <Reactions
+              upvote={upvoteComment}
+              downvote={downvoteComment}
+              isLiked={isLiked}
+              isDisliked={isDisliked}
+            />
+          )}
+          <NewCommentForm
+            parentId={commentId}
+            postId={postId}
+            refetchPost={refetchPost}
+          />
+        </>
       )}
       {childComments?.map((child) => (
         <Comment
           key={child.id}
           body={child.body}
+          points={child.points}
+          isLiked={!!child.commentReactions[0]?.isLike}
+          isDisliked={
+            child.commentReactions[0] !== undefined
+              ? !child.commentReactions[0].isLike
+              : false
+          }
           isDeleted={child.deleted}
           user={child.user}
           childComments={child.children}
@@ -238,6 +308,18 @@ const Post: NextPage = () => {
   }, [getPostQuery]);
   console.log(commentTree);
 
+  const postReactionMutation = trpc.useMutation(['posts.reactToPost']);
+  const upvotePost = useCallback(() => {
+    postReactionMutation.mutateAsync({ isLike: true, postId }).then(() => {
+      refetchPost();
+    });
+  }, [postReactionMutation, postId, refetchPost]);
+  const downvotePost = useCallback(() => {
+    postReactionMutation.mutateAsync({ isLike: false, postId }).then(() => {
+      refetchPost();
+    });
+  }, [postReactionMutation, postId, refetchPost]);
+
   if (getPostQuery.isLoading) return <p>Loading...</p>;
 
   if (getPostQuery.isError)
@@ -303,17 +385,33 @@ const Post: NextPage = () => {
       )}
       <h1 className="text-xl mt-2">{getPostQuery.data?.post.title}</h1>
       <p className="text-sm">Written by {getPostQuery.data?.post.user.name}</p>
+      <p className="text-sm">{getPostQuery.data?.post.points} points</p>
       <p className="my-5">{getPostQuery.data?.post.body}</p>
 
       {status === 'authenticated' && (
-        <NewCommentForm postId={postId} refetchPost={refetchPost} />
+        <>
+          <Reactions
+            upvote={upvotePost}
+            downvote={downvotePost}
+            isLiked={!!getPostQuery.data?.isLikedByCurrentUser}
+            isDisliked={!!getPostQuery.data?.isDislikedByCurrentUser}
+          />
+          <NewCommentForm postId={postId} refetchPost={refetchPost} />
+        </>
       )}
 
       {commentTree.map((comment) => (
         <Comment
           key={comment.id}
           body={comment.body}
+          isLiked={!!comment.commentReactions[0]?.isLike}
+          isDisliked={
+            comment.commentReactions[0] !== undefined
+              ? !comment.commentReactions[0].isLike
+              : false
+          }
           user={comment.user}
+          points={comment.points}
           isDeleted={comment.deleted}
           childComments={comment.children}
           commentId={comment.id}
