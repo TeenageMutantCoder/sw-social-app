@@ -1,24 +1,48 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { trpc } from '../../utils/trpc';
+import { inferQueryOutput, trpc } from '../../utils/trpc';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Toast from '../../components/toast';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-type ReactionsProps = {
+type TComment = inferQueryOutput<'posts.getPost'>['post']['comments'][0];
+type TCommentWithChildren = TComment & {
+  children?: TComment[];
+};
+
+const getCommentTreeFromComments = (
+  comments: TCommentWithChildren[] | undefined,
+  parentId: string | undefined
+) => {
+  if (comments === undefined || comments.length === 0) return [];
+  const rootComments = comments.filter((comment) => {
+    return comment.parent?.id === parentId;
+  });
+  const otherComments = comments.filter((comment) => {
+    return comment.parent?.id !== parentId;
+  });
+
+  for (let comment of rootComments) {
+    comment.children = getCommentTreeFromComments(otherComments, comment.id);
+  }
+  return rootComments;
+};
+
+type TReactionsProps = {
   upvote: () => void;
   downvote: () => void;
   isLiked: boolean;
   isDisliked: boolean;
 };
+
 const Reactions = ({
   upvote,
   downvote,
   isLiked,
   isDisliked,
-}: ReactionsProps) => {
+}: TReactionsProps) => {
   return (
     <div className="flex my-3">
       <button
@@ -37,7 +61,7 @@ const Reactions = ({
   );
 };
 
-type NewCommentFormProps = {
+type TNewCommentFormProps = {
   postId: string;
   refetchPost: () => void;
   parentId?: string;
@@ -47,11 +71,11 @@ const NewCommentForm = ({
   postId,
   parentId,
   refetchPost,
-}: NewCommentFormProps) => {
+}: TNewCommentFormProps) => {
   const createComment = trpc.useMutation(['comments.createComment']);
-  const { register, handleSubmit, reset } = useForm<FormInput>();
+  const { register, handleSubmit, reset } = useForm<TFormInput>();
 
-  const onSubmitHandler: SubmitHandler<FormInput> = useCallback(
+  const onSubmitHandler: SubmitHandler<TFormInput> = useCallback(
     ({ body }) => {
       createComment
         .mutateAsync({ body, parentCommentId: parentId, postId })
@@ -75,23 +99,24 @@ const NewCommentForm = ({
   );
 };
 
-type FormInput = {
+type TFormInput = {
   title: string;
   body: string;
 };
 
-type CommentProps = {
+type TCommentProps = {
   body: string;
   user: { name: string; id: string };
   points: number;
   isLiked: boolean;
   isDisliked: boolean;
   isDeleted: boolean;
-  childComments: any[] | undefined;
+  childComments: TCommentWithChildren[] | undefined;
   postId: string;
   commentId: string;
   refetchPost: () => void;
 };
+
 const Comment = ({
   body,
   user,
@@ -103,8 +128,8 @@ const Comment = ({
   postId,
   commentId,
   refetchPost,
-}: CommentProps) => {
-  const { register, handleSubmit, reset } = useForm<FormInput>();
+}: TCommentProps) => {
+  const { register, handleSubmit, reset } = useForm<TFormInput>();
   const { data: session, status } = useSession();
   const deleteCommentMutation = trpc.useMutation(['comments.deleteComment']);
   const updateCommentMutation = trpc.useMutation(['comments.updateComment']);
@@ -123,7 +148,7 @@ const Comment = ({
     setIsEditing(false);
   }, [setIsEditing]);
 
-  const onSubmitHandler: SubmitHandler<FormInput> = useCallback(
+  const onSubmitHandler: SubmitHandler<TFormInput> = useCallback(
     ({ body }) => {
       updateCommentMutation.mutateAsync({ id: commentId, body }).then(() => {
         reset();
@@ -234,7 +259,7 @@ const Comment = ({
 };
 
 const Post: NextPage = () => {
-  const { register, handleSubmit, reset } = useForm<FormInput>();
+  const { register, handleSubmit, reset } = useForm<TFormInput>();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const { data: session, status } = useSession();
@@ -261,7 +286,7 @@ const Post: NextPage = () => {
     setIsEditing(false);
   }, [setIsEditing]);
 
-  const onSubmitHandler: SubmitHandler<FormInput> = useCallback(
+  const onSubmitHandler: SubmitHandler<TFormInput> = useCallback(
     ({ title, body }) => {
       updatePostMutation.mutateAsync({ id: postId, title, body }).then(() => {
         reset();
@@ -274,39 +299,8 @@ const Post: NextPage = () => {
 
   const commentTree = useMemo(() => {
     const comments = getPostQuery.data?.post.comments;
-    const comment = getPostQuery.data?.post.comments[0];
-    const parentId = comment?.parent?.id;
-    type Comment = typeof comment;
-    type ParentId = typeof parentId;
-    type CommentWithChildren = Comment & {
-      children?: Comment[];
-    };
-    type CommentsWithChildren = CommentWithChildren[];
-
-    const getCommentTreeFromComments = (
-      comments: CommentsWithChildren | undefined,
-      parentId: ParentId
-    ) => {
-      if (comments === undefined || comments.length === 0) return [];
-      const rootComments = comments.filter((comment) => {
-        return comment.parent?.id === parentId;
-      });
-      const otherComments = comments.filter((comment) => {
-        return comment.parent?.id !== parentId;
-      });
-
-      for (let comment of rootComments) {
-        comment.children = getCommentTreeFromComments(
-          otherComments,
-          comment.id
-        );
-      }
-      return rootComments;
-    };
-
     return getCommentTreeFromComments(comments, undefined);
   }, [getPostQuery]);
-  console.log(commentTree);
 
   const postReactionMutation = trpc.useMutation(['posts.reactToPost']);
   const upvotePost = useCallback(() => {
