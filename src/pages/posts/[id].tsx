@@ -4,8 +4,9 @@ import { inferQueryOutput, trpc } from '../../utils/trpc';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import Toast from '../../components/toast';
+import Alert from '../../components/alert';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import Button from '../../components/button';
 
 type TComment = inferQueryOutput<'posts.getPost'>['post']['comments'][0];
 type TCommentWithChildren = TComment & {
@@ -45,18 +46,12 @@ const Reactions = ({
 }: TReactionsProps) => {
   return (
     <div className="flex my-3">
-      <button
-        className={`btn ${isLiked ? 'bg-green-900' : ''}`}
-        onClick={upvote}
-      >
+      <Button theme={isLiked ? 'green' : 'light'} onClick={upvote}>
         Upvote
-      </button>
-      <button
-        className={`btn ${isDisliked ? 'bg-red-900' : ''}`}
-        onClick={downvote}
-      >
+      </Button>
+      <Button theme={isDisliked ? 'red' : 'light'} onClick={downvote}>
         Downvote
-      </button>
+      </Button>
     </div>
   );
 };
@@ -90,11 +85,11 @@ const NewCommentForm = ({
   return (
     <form name="new-comment" onSubmit={handleSubmit(onSubmitHandler)}>
       <textarea
-        className="form-control textarea textarea-bordered my-2"
         placeholder="Add your comment"
         {...register('body', { required: true })}
       />
-      <input className="form-control btn btn-primary my-4" type="submit" />
+      <br />
+      <Button type="submit" />
     </form>
   );
 };
@@ -180,23 +175,14 @@ const Comment = ({
       {isEditing ? (
         <form name="edit-post" onSubmit={handleSubmit(onSubmitHandler)}>
           <textarea
-            className="form-control textarea textarea-bordered my-2"
             placeholder="Body"
             defaultValue={body}
             {...register('body', { required: true })}
           />
           <div className="flex gap-3 my-4">
-            <input className="form-control btn btn-primary" type="submit" />
-            <button
-              className="form-control btn btn-outline btn-secondary"
-              onClick={stopEditingComment}
-            >
-              Cancel
-            </button>
-            <input
-              className="form-control btn btn-outline btn-accent"
-              type="reset"
-            />
+            <Button type="submit" />
+            <Button onClick={stopEditingComment}>Cancel</Button>
+            <Button type="reset" />
           </div>
         </form>
       ) : (
@@ -209,12 +195,8 @@ const Comment = ({
 
       {!isDeleted && session?.user?.id === user.id && (
         <div className="flex gap-3 my-3">
-          <button className="btn" onClick={deleteComment}>
-            Delete
-          </button>
-          <button className="btn" onClick={startEditingComment}>
-            Edit
-          </button>
+          <Button onClick={deleteComment}>Delete</Button>
+          <Button onClick={startEditingComment}>Edit</Button>
         </div>
       )}
 
@@ -323,29 +305,20 @@ const Post: NextPage = () => {
     return (
       <form name="edit-post" onSubmit={handleSubmit(onSubmitHandler)}>
         <input
-          className="form-control input input-bordered my-2"
+          type="text"
           placeholder="Title"
           defaultValue={getPostQuery.data?.post.title}
           {...register('title', { required: true })}
         />
         <textarea
-          className="form-control textarea textarea-bordered my-2"
           placeholder="Body"
           defaultValue={getPostQuery.data?.post.body}
           {...register('body', { required: true })}
         />
         <div className="flex gap-3 my-4">
-          <input className="form-control btn btn-primary" type="submit" />
-          <button
-            className="form-control btn btn-outline btn-secondary"
-            onClick={stopEditingPost}
-          >
-            Cancel
-          </button>
-          <input
-            className="form-control btn btn-outline btn-accent"
-            type="reset"
-          />
+          <Button type="submit" />
+          <Button onClick={stopEditingPost}>Cancel</Button>
+          <Button type="reset" />
         </div>
       </form>
     );
@@ -353,28 +326,25 @@ const Post: NextPage = () => {
   return (
     <>
       {deletePostMutation.isError && (
-        <Toast alertType="error">
+        <Alert alertType="danger">
           There was an error while deleting this post.
-        </Toast>
+        </Alert>
       )}
 
       {updatePostMutation.isError && (
-        <Toast alertType="error">
+        <Alert alertType="danger">
           There was an error while editing this post.
-        </Toast>
+        </Alert>
       )}
 
-      <Link href="/">
-        <button className="btn btn-outline">Go back to posts</button>
-      </Link>
+      <Button>
+        <Link href="/">Go back to posts</Link>
+      </Button>
+
       {session?.user?.id === getPostQuery.data?.post.user.id && (
         <div className="flex gap-3 my-3">
-          <button className="btn" onClick={deletePost}>
-            Delete
-          </button>
-          <button className="btn" onClick={startEditingPost}>
-            Edit
-          </button>
+          <Button onClick={deletePost}>Delete</Button>
+          <Button onClick={startEditingPost}>Edit</Button>
         </div>
       )}
       <h1 className="text-xl mt-2">{getPostQuery.data?.post.title}</h1>

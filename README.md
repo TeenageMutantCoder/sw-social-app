@@ -29,7 +29,7 @@ This project was bootstrapped using [create-t3-app](https://create.t3.gg/). That
 - [Prisma](https://www.prisma.io/)
 - [NextAuth.js](https://next-auth.js.org/)
 
-I also included some other helpful libraries such as [DaisyUI](https://daisyui.com/) and [React Hook Form](https://react-hook-form.com/).
+I also included some other helpful libraries such as [React Hook Form](https://react-hook-form.com/).
 
 ## MVP
 

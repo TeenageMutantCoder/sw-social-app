@@ -25,3 +25,10 @@ $animation-easing-function: ease-in-out;
     $animation-duration $animation-easing-function $animation-delay fade-out;
   animation-fill-mode: forwards;
 }
+
+.top-center {
+  display: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+}

@@ -5,9 +5,10 @@ import { trpc } from '../utils/trpc';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import { useRouter } from 'next/router';
-import Toast from '../components/toast';
+import Alert from '../components/alert';
+import Button from '../components/button';
 
-type FormInput = {
+type TFormInput = {
   title: string;
   body: string;
 };
@@ -16,9 +17,9 @@ const NewPostForm = ({ refetchPosts }: { refetchPosts: () => void }) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const createPost = trpc.useMutation(['posts.createPost']);
-  const { register, handleSubmit, reset } = useForm<FormInput>();
+  const { register, handleSubmit, reset } = useForm<TFormInput>();
 
-  const onSubmitHandler: SubmitHandler<FormInput> = useCallback(
+  const onSubmitHandler: SubmitHandler<TFormInput> = useCallback(
     ({ title, body }) => {
       createPost.mutateAsync({ title, body }).then(() => {
         reset();
@@ -30,31 +31,38 @@ const NewPostForm = ({ refetchPosts }: { refetchPosts: () => void }) => {
     [createPost, reset, refetchPosts, router]
   );
 
+  const stopCreatingPost = useCallback(() => {
+    setIsOpen(false);
+  }, [setIsOpen]);
+
   if (!isOpen)
     return (
-      <button
-        className="btn btn-primary"
+      <Button
+        theme="light"
         onClick={() => {
           setIsOpen(true);
         }}
       >
         Create a new post
-      </button>
+      </Button>
     );
 
   return (
     <form name="new-post" onSubmit={handleSubmit(onSubmitHandler)}>
       <input
-        className="form-control input input-bordered my-2"
+        type="text"
         placeholder="Title"
         {...register('title', { required: true })}
       />
-      <textarea
-        className="form-control textarea textarea-bordered my-2"
-        placeholder="Body"
-        {...register('body', { required: true })}
-      />
-      <input className="form-control btn btn-primary my-4" type="submit" />
+      <br />
+      <textarea placeholder="Body" {...register('body', { required: true })} />
+      <div className="flex">
+        <Button type="submit" />
+        <Button theme="alternative" onClick={stopCreatingPost}>
+          Cancel
+        </Button>
+        <Button theme="alternative" type="reset" />
+      </div>
     </form>
   );
 };
@@ -72,10 +80,10 @@ const Home: NextPage = () => {
   return (
     <>
       {hasDeletedPost && (
-        <Toast alertType="success">Successfully deleted post.</Toast>
+        <Alert alertType="success">Successfully deleted post.</Alert>
       )}
       {hasCreatedPost && (
-        <Toast alertType="success">Successfully created post.</Toast>
+        <Alert alertType="success">Successfully created post.</Alert>
       )}
       {status === 'authenticated' && (
         <NewPostForm refetchPosts={refetchPosts} />
@@ -83,7 +91,7 @@ const Home: NextPage = () => {
       {status === 'unauthenticated' && (
         <p>
           Please{' '}
-          <a className="link-primary" href="#" onClick={() => signIn()}>
+          <a href="#" onClick={() => signIn()}>
             sign in
           </a>{' '}
           to create a post
@@ -97,7 +105,7 @@ const Home: NextPage = () => {
       {getPostsQuery.data?.map(({ id, user, title, points }) => (
         <div
           key={id}
-          className="p-3 mt-2 bg-gray-700 hover:bg-gray-600"
+          className="p-3 mt-2 bg-gray-300 hover:bg-gray-400 transition-all"
           style={{ cursor: 'pointer' }}
           onClick={() => {
             router.push(`/posts/${id}`);
