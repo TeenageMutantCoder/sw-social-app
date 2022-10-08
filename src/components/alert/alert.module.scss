@@ -27,8 +27,9 @@ $animation-easing-function: ease-in-out;
 }
 
 .top-center {
-  display: absolute;
+  z-index: 100000000000000000000000000000000000000000000000;
+  position: absolute;
   top: 5%;
   left: 50%;
-  transform: translateX(-50%);
+  translate: -50%;
 }
