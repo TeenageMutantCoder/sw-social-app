@@ -3,10 +3,10 @@ import Navbar from './navbar';
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="px-6">
+    <>
       <Navbar />
-      {children}
-    </div>
+      <div className="px-6">{children}</div>
+    </>
   );
 };
 
