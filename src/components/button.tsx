@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 const buttonThemeClassNames = {
   default:
@@ -35,6 +35,7 @@ type TButtonProps = {
   children?: ReactNode;
   onClick?: () => void;
   className?: string;
+  style?: CSSProperties;
 };
 
 const Button = ({
@@ -42,18 +43,25 @@ const Button = ({
   className,
   children,
   type,
+  style,
   onClick,
 }: TButtonProps) => {
   const classNames = `cursor-pointer ${
     buttonThemeClassNames[theme ?? 'default']
   } ${className}`;
 
-  if (type === 'submit') return <input type="submit" className={classNames} />;
+  if (type === 'submit')
+    return <input type="submit" className={classNames} style={style} />;
   else if (type === 'reset')
-    return <input type="reset" className={classNames} />;
+    return <input type="reset" className={classNames} style={style} />;
 
   return (
-    <button type="button" onClick={onClick} className={classNames}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={classNames}
+      style={style}
+    >
       {children}
     </button>
   );
