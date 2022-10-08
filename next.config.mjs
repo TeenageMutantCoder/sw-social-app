@@ -7,6 +7,18 @@
  * @constraint {{import('next').NextConfig}}
  */
 function defineNextConfig(config) {
+  // https://github.com/vercel/next.js/issues/8733#issuecomment-944237964
+  config.webpack = (config) => {
+    return {
+      ...config,
+      watch: true,
+      watchOptions: {
+        aggregateTimeout: 1000,
+        poll: 1000,
+        ignored: ['node_modules', '.next'],
+      },
+    };
+  };
   return config;
 }
 
