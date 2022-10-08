@@ -106,7 +106,8 @@ const Home: NextPage = () => {
         <Button
           key={id}
           theme="outline-dark"
-          className="w-full"
+          className="w-full text-left"
+          style={{ textAlign: 'left' }}
           onClick={() => {
             router.push(`/posts/${id}`);
           }}
