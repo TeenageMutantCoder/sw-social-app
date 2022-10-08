@@ -31,6 +31,23 @@ const getCommentTreeFromComments = (
   return rootComments;
 };
 
+type TOwnerActionsProps = {
+  deleteHandler: () => void;
+  editHandler: () => void;
+};
+const OwnerActions = ({ deleteHandler, editHandler }: TOwnerActionsProps) => {
+  return (
+    <div className="flex gap-3 my-1">
+      <Button theme="outline-red" onClick={deleteHandler}>
+        Delete
+      </Button>
+      <Button theme="outline-yellow" onClick={editHandler}>
+        Edit
+      </Button>
+    </div>
+  );
+};
+
 type TReactionsProps = {
   upvote: () => void;
   downvote: () => void;
@@ -45,7 +62,7 @@ const Reactions = ({
   isDisliked,
 }: TReactionsProps) => {
   return (
-    <div className="flex my-3">
+    <div className="flex my-1">
       <Button theme={isLiked ? 'green' : 'light'} onClick={upvote}>
         Upvote
       </Button>
@@ -194,10 +211,10 @@ const Comment = ({
       )}
 
       {!isDeleted && session?.user?.id === user.id && (
-        <div className="flex gap-3 my-3">
-          <Button onClick={deleteComment}>Delete</Button>
-          <Button onClick={startEditingComment}>Edit</Button>
-        </div>
+        <OwnerActions
+          deleteHandler={deleteComment}
+          editHandler={startEditingComment}
+        />
       )}
 
       {status === 'authenticated' && (
@@ -310,6 +327,7 @@ const Post: NextPage = () => {
           defaultValue={getPostQuery.data?.post.title}
           {...register('title', { required: true })}
         />
+        <br />
         <textarea
           placeholder="Body"
           defaultValue={getPostQuery.data?.post.body}
@@ -317,8 +335,10 @@ const Post: NextPage = () => {
         />
         <div className="flex gap-3 my-4">
           <Button type="submit" />
-          <Button onClick={stopEditingPost}>Cancel</Button>
-          <Button type="reset" />
+          <Button theme="alternative" onClick={stopEditingPost}>
+            Cancel
+          </Button>
+          <Button theme="alternative" type="reset" />
         </div>
       </form>
     );
@@ -337,15 +357,15 @@ const Post: NextPage = () => {
         </Alert>
       )}
 
-      <Button>
+      <Button theme="outline-default">
         <Link href="/">Go back to posts</Link>
       </Button>
 
       {session?.user?.id === getPostQuery.data?.post.user.id && (
-        <div className="flex gap-3 my-3">
-          <Button onClick={deletePost}>Delete</Button>
-          <Button onClick={startEditingPost}>Edit</Button>
-        </div>
+        <OwnerActions
+          deleteHandler={deletePost}
+          editHandler={startEditingPost}
+        />
       )}
       <h1 className="text-xl mt-2">{getPostQuery.data?.post.title}</h1>
       <p className="text-sm">Written by {getPostQuery.data?.post.user.name}</p>
