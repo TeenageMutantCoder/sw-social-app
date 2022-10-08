@@ -103,16 +103,16 @@ const Home: NextPage = () => {
         <p>There was an error while getting the posts.</p>
       )}
       {getPostsQuery.data?.map(({ id, user, title, points }) => (
-        <div
+        <Button
           key={id}
-          className="p-3 mt-2 bg-gray-300 hover:bg-gray-400 transition-all"
-          style={{ cursor: 'pointer' }}
+          theme="outline-dark"
+          className="w-full"
           onClick={() => {
             router.push(`/posts/${id}`);
           }}
         >
           {title} - {user.name} - {points} points
-        </div>
+        </Button>
       ))}
     </>
   );
