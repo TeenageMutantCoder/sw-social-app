@@ -30,7 +30,7 @@ model Post {
     title         String
     body          String
     points        Int            @default(0)
-    user          User           @relation(fields: [userId], references: [id])
+    user          User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     userId        String
     comments      Comment[]
     postReactions PostReaction[]
@@ -41,11 +41,11 @@ model Comment {
     body             String
     points           Int               @default(0)
     deleted          Boolean           @default(false)
-    user             User              @relation(fields: [userId], references: [id])
+    user             User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     userId           String
-    post             Post              @relation(fields: [postId], references: [id])
+    post             Post              @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     postId           String
-    parent           Comment?          @relation("ParentChildComments", fields: [parentId], references: [id])
+    parent           Comment?          @relation("ParentChildComments", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     parentId         String?
     children         Comment[]         @relation("ParentChildComments")
     createdAt        DateTime          @default(now())
@@ -54,9 +54,9 @@ model Comment {
 
 model PostReaction {
     userId String
-    user   User    @relation(fields: [userId], references: [id])
+    user   User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     postId String
-    post   Post    @relation(fields: [postId], references: [id])
+    post   Post    @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     isLike Boolean
 
     @@unique([userId, postId])
@@ -64,9 +64,9 @@ model PostReaction {
 
 model CommentReaction {
     userId    String
-    user      User    @relation(fields: [userId], references: [id])
+    user      User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     commentId String
-    comment   Comment @relation(fields: [commentId], references: [id])
+    comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     isLike    Boolean
 
     @@unique([userId, commentId])
