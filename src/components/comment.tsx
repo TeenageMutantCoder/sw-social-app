@@ -1,5 +1,6 @@
 import { useSession } from 'next-auth/react';
 import { useCallback, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import { trpc } from '../utils/trpc';
@@ -10,6 +11,8 @@ import Reactions from './reactions';
 import Form from './form';
 
 type TCommentProps = {
+  className?: string;
+  style?: CSSProperties;
   body: string;
   user: { name: string; id: string };
   points: number;
@@ -27,6 +30,8 @@ type TEditCommentFormInput = {
 };
 
 const Comment = ({
+  className,
+  style,
   body,
   user,
   isLiked,
@@ -87,7 +92,7 @@ const Comment = ({
   }, [commentReactionMutation, commentId, refetchPost]);
 
   return (
-    <div className="ml-3">
+    <div style={style} className={`mb-2 ${className}`}>
       {isEditing && (
         <Form
           submitHandler={handleSubmit(onSubmitHandler)}
@@ -103,9 +108,9 @@ const Comment = ({
 
       {!isEditing && (
         <>
-          <p>{isDeleted ? 'deleted' : body}</p>
-          <p>{isDeleted ? 'deleted' : user.name}</p>
-          <p>{points} points</p>
+          <p className="break-words mb-3">{isDeleted ? 'deleted' : body}</p>
+          <p className="text-sm">{isDeleted ? 'deleted' : user.name}</p>
+          <p className="text-sm">{points} points</p>
         </>
       )}
 
@@ -134,25 +139,27 @@ const Comment = ({
         />
       )}
 
-      {childComments?.map((child) => (
-        <Comment
-          key={child.id}
-          body={child.body}
-          points={child.points}
-          isLiked={!!child.commentReactions[0]?.isLike}
-          isDisliked={
-            child.commentReactions[0] !== undefined
-              ? !child.commentReactions[0].isLike
-              : false
-          }
-          isDeleted={child.deleted}
-          user={child.user}
-          childComments={child.children}
-          postId={postId}
-          commentId={child.id}
-          refetchPost={refetchPost}
-        />
-      ))}
+      <div className="ml-3 pl-3" style={{ borderLeft: '1px solid gray' }}>
+        {childComments?.map((child) => (
+          <Comment
+            key={child.id}
+            body={child.body}
+            points={child.points}
+            isLiked={!!child.commentReactions[0]?.isLike}
+            isDisliked={
+              child.commentReactions[0] !== undefined
+                ? !child.commentReactions[0].isLike
+                : false
+            }
+            isDeleted={child.deleted}
+            user={child.user}
+            childComments={child.children}
+            postId={postId}
+            commentId={child.id}
+            refetchPost={refetchPost}
+          />
+        ))}
+      </div>
     </div>
   );
 };

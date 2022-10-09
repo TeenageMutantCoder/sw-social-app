@@ -4,15 +4,19 @@ import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import { trpc } from '../utils/trpc';
 import Button from './button';
+import Form from './form';
 
 type TNewPostFormInput = {
   title: string;
   body: string;
 };
 
-type TNewPostFormProps = { refetchPosts: () => void };
+type TNewPostFormProps = {
+  className: string;
+  refetchPosts: () => void;
+};
 
-const NewPostForm = ({ refetchPosts }: TNewPostFormProps) => {
+const NewPostForm = ({ className, refetchPosts }: TNewPostFormProps) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const createPost = trpc.useMutation(['posts.createPost']);
@@ -38,6 +42,7 @@ const NewPostForm = ({ refetchPosts }: TNewPostFormProps) => {
     return (
       <Button
         theme="light"
+        className="w-full mb-5"
         onClick={() => {
           setIsOpen(true);
         }}
@@ -47,22 +52,18 @@ const NewPostForm = ({ refetchPosts }: TNewPostFormProps) => {
     );
 
   return (
-    <form name="new-post" onSubmit={handleSubmit(onSubmitHandler)}>
+    <Form
+      submitHandler={handleSubmit(onSubmitHandler)}
+      cancelHandler={stopCreatingPost}
+      className={className}
+    >
       <input
         type="text"
         placeholder="Title"
         {...register('title', { required: true })}
       />
-      <br />
       <textarea placeholder="Body" {...register('body', { required: true })} />
-      <div className="flex">
-        <Button type="submit" />
-        <Button theme="alternative" onClick={stopCreatingPost}>
-          Cancel
-        </Button>
-        <Button theme="alternative" type="reset" />
-      </div>
-    </form>
+    </Form>
   );
 };
 

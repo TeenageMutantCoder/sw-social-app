@@ -14,7 +14,7 @@ const OwnerActions = ({
   if (!isOwner) return null;
 
   return (
-    <div className="flex gap-3 my-1">
+    <div className="flex my-1">
       <Button theme="outline-red" onClick={deleteHandler}>
         Delete
       </Button>

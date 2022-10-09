@@ -2,25 +2,39 @@ import Button from './button';
 import type { ReactNode } from 'react';
 
 type TFormButtonsPorps = {
-  cancelHandler: () => void;
+  cancelHandler?: () => void;
   submitHandler: () => void;
   children: ReactNode;
+  submitOnly?: boolean;
+  className?: string;
+  submitBtnClassName?: string;
 };
 
 const Form = ({
   children,
   submitHandler,
   cancelHandler,
+  submitOnly,
+  className,
+  submitBtnClassName,
 }: TFormButtonsPorps) => {
   return (
-    <form onSubmit={submitHandler}>
+    <form
+      className={`flex flex-col mx-auto gap-2 ${className}`}
+      onSubmit={submitHandler}
+    >
       {children}
-      <div className="flex gap-3 my-4">
-        <Button type="submit" />
-        <Button theme="alternative" onClick={cancelHandler}>
-          Cancel
-        </Button>
-        <Button theme="alternative" type="reset" />
+
+      <div className="flex">
+        <Button type="submit" className={submitBtnClassName} />
+        {!submitOnly && (
+          <>
+            <Button theme="alternative" onClick={cancelHandler}>
+              Cancel
+            </Button>
+            <Button theme="alternative" type="reset" />
+          </>
+        )}
       </div>
     </form>
   );

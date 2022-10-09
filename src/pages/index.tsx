@@ -22,16 +22,23 @@ const Home: NextPage = () => {
       {hasDeletedPost && (
         <Alert alertType="success">Successfully deleted post.</Alert>
       )}
+
       {hasCreatedPost && (
         <Alert alertType="success">Successfully created post.</Alert>
       )}
+
       {status === 'authenticated' && (
-        <NewPostForm refetchPosts={refetchPosts} />
+        <NewPostForm className="mb-4" refetchPosts={refetchPosts} />
       )}
+
       {status === 'unauthenticated' && (
-        <p>
+        <p className="mb-4 text-center">
           Please{' '}
-          <a href="#" onClick={() => signIn()}>
+          <a
+            className="text-blue-500 font-bold"
+            href="#"
+            onClick={() => signIn()}
+          >
             sign in
           </a>{' '}
           to create a post
@@ -48,12 +55,13 @@ const Home: NextPage = () => {
           key={id}
           theme="outline-dark"
           className="w-full text-left"
-          style={{ textAlign: 'left' }}
           onClick={() => {
             router.push(`/posts/${id}`);
           }}
         >
-          {title} - {user.name} - {points} points
+          <h2 className="text-lg break-words">{title}</h2>
+          <p className="text-sm">{user.name}</p>
+          <p className="text-sm">{points} points</p>
         </Button>
       ))}
     </>

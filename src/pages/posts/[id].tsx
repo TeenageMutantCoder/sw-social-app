@@ -1,7 +1,6 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { trpc } from '../../utils/trpc';
-import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Alert from '../../components/alert';
@@ -10,7 +9,6 @@ import type { SubmitHandler } from 'react-hook-form';
 import Button from '../../components/button';
 import OwnerActions from '../../components/owner_actions';
 import Reactions from '../../components/reactions';
-import NewCommentForm from '../../components/new_comment_form';
 import Comments from '../../components/comments';
 import Form from '../../components/form';
 
@@ -28,6 +26,10 @@ const Post: NextPage = () => {
   const getPostQuery = trpc.useQuery(['posts.getPost', postId]);
   const deletePostMutation = trpc.useMutation(['posts.deletePost']);
   const updatePostMutation = trpc.useMutation(['posts.updatePost']);
+
+  const navigateHome = useCallback(() => {
+    router.push('/');
+  }, [router]);
 
   const refetchPost = useCallback(() => {
     getPostQuery.refetch();
@@ -89,7 +91,6 @@ const Post: NextPage = () => {
           defaultValue={getPostQuery.data?.post.title}
           {...register('title', { required: true })}
         />
-        <br />
         <textarea
           placeholder="Body"
           defaultValue={getPostQuery.data?.post.body}
@@ -112,32 +113,37 @@ const Post: NextPage = () => {
         </Alert>
       )}
 
-      <Button theme="outline-default">
-        <Link href="/">Go back to posts</Link>
+      <Button theme="outline-default" onClick={navigateHome}>
+        Go back to posts
       </Button>
 
-      <h1 className="text-xl mt-2">{getPostQuery.data?.post.title}</h1>
-      <p className="text-sm">Written by {getPostQuery.data?.post.user.name}</p>
-      <p className="text-sm">{getPostQuery.data?.post.points} points</p>
-      <p className="my-5">{getPostQuery.data?.post.body}</p>
+      <div className="mx-auto w-3/4 md:w-1/2 flex flex-col items-center">
+        <h1 className="text-2xl mt-2 mx-auto max-w-full break-words">
+          {getPostQuery.data?.post.title}
+        </h1>
+        <p className="text-sm">{getPostQuery.data?.post.user.name}</p>
+        <p className="text-sm">{getPostQuery.data?.post.points} points</p>
+        <p className="my-5 mx-auto max-w-full break-words">
+          {getPostQuery.data?.post.body}
+        </p>
 
-      <OwnerActions
-        isOwner={session?.user?.id === getPostQuery.data?.post.user.id}
-        deleteHandler={deletePost}
-        editHandler={startEditingPost}
-      />
+        <OwnerActions
+          isOwner={session?.user?.id === getPostQuery.data?.post.user.id}
+          deleteHandler={deletePost}
+          editHandler={startEditingPost}
+        />
 
-      {status === 'authenticated' && (
-        <>
-          <Reactions
-            upvote={upvotePost}
-            downvote={downvotePost}
-            isLiked={!!getPostQuery.data?.isLikedByCurrentUser}
-            isDisliked={!!getPostQuery.data?.isDislikedByCurrentUser}
-          />
-          <NewCommentForm postId={postId} refetchPost={refetchPost} />
-        </>
-      )}
+        {status === 'authenticated' && (
+          <>
+            <Reactions
+              upvote={upvotePost}
+              downvote={downvotePost}
+              isLiked={!!getPostQuery.data?.isLikedByCurrentUser}
+              isDisliked={!!getPostQuery.data?.isDislikedByCurrentUser}
+            />
+          </>
+        )}
+      </div>
 
       <Comments
         postId={postId}

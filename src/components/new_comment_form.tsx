@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import { trpc } from '../utils/trpc';
-import Button from './button';
+import Form from './form';
 
 type TNewCommentFormProps = {
   postId: string;
@@ -35,14 +35,13 @@ const NewCommentForm = ({
   );
 
   return (
-    <form name="new-comment" onSubmit={handleSubmit(onSubmitHandler)}>
+    <Form submitHandler={handleSubmit(onSubmitHandler)} submitOnly={true}>
       <textarea
+        className="w-full"
         placeholder="Add your comment"
         {...register('body', { required: true })}
       />
-      <br />
-      <Button type="submit" />
-    </form>
+    </Form>
   );
 };
 
