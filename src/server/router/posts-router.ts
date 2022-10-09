@@ -15,6 +15,9 @@ export const postsRouter = createRouter()
             },
           },
         },
+        orderBy: {
+          createdAt: 'desc',
+        },
       });
       return posts;
     },
