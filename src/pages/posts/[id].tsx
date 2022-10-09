@@ -116,16 +116,16 @@ const Post: NextPage = () => {
         <Link href="/">Go back to posts</Link>
       </Button>
 
+      <h1 className="text-xl mt-2">{getPostQuery.data?.post.title}</h1>
+      <p className="text-sm">Written by {getPostQuery.data?.post.user.name}</p>
+      <p className="text-sm">{getPostQuery.data?.post.points} points</p>
+      <p className="my-5">{getPostQuery.data?.post.body}</p>
+
       <OwnerActions
         isOwner={session?.user?.id === getPostQuery.data?.post.user.id}
         deleteHandler={deletePost}
         editHandler={startEditingPost}
       />
-
-      <h1 className="text-xl mt-2">{getPostQuery.data?.post.title}</h1>
-      <p className="text-sm">Written by {getPostQuery.data?.post.user.name}</p>
-      <p className="text-sm">{getPostQuery.data?.post.points} points</p>
-      <p className="my-5">{getPostQuery.data?.post.body}</p>
 
       {status === 'authenticated' && (
         <>
