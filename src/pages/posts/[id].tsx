@@ -116,12 +116,12 @@ const Post: NextPage = () => {
         <Link href="/">Go back to posts</Link>
       </Button>
 
-      {session?.user?.id === getPostQuery.data?.post.user.id && (
-        <OwnerActions
-          deleteHandler={deletePost}
-          editHandler={startEditingPost}
-        />
-      )}
+      <OwnerActions
+        isOwner={session?.user?.id === getPostQuery.data?.post.user.id}
+        deleteHandler={deletePost}
+        editHandler={startEditingPost}
+      />
+
       <h1 className="text-xl mt-2">{getPostQuery.data?.post.title}</h1>
       <p className="text-sm">Written by {getPostQuery.data?.post.user.name}</p>
       <p className="text-sm">{getPostQuery.data?.post.points} points</p>
@@ -138,6 +138,7 @@ const Post: NextPage = () => {
           <NewCommentForm postId={postId} refetchPost={refetchPost} />
         </>
       )}
+
       <Comments
         postId={postId}
         comments={getPostQuery.data?.post.comments}

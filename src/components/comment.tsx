@@ -88,7 +88,7 @@ const Comment = ({
 
   return (
     <div className="ml-3">
-      {isEditing ? (
+      {isEditing && (
         <Form
           submitHandler={handleSubmit(onSubmitHandler)}
           cancelHandler={stopEditingComment}
@@ -99,7 +99,9 @@ const Comment = ({
             {...register('body', { required: true })}
           />
         </Form>
-      ) : (
+      )}
+
+      {!isEditing && (
         <>
           <p>{isDeleted ? 'deleted' : body}</p>
           <p>{isDeleted ? 'deleted' : user.name}</p>
@@ -107,30 +109,31 @@ const Comment = ({
         </>
       )}
 
-      {!isDeleted && session?.user?.id === user.id && (
+      {!isDeleted && (
         <OwnerActions
+          isOwner={session?.user?.id === user.id}
           deleteHandler={deleteComment}
           editHandler={startEditingComment}
         />
       )}
 
-      {status === 'authenticated' && (
-        <>
-          {!isDeleted && (
-            <Reactions
-              upvote={upvoteComment}
-              downvote={downvoteComment}
-              isLiked={isLiked}
-              isDisliked={isDisliked}
-            />
-          )}
-          <NewCommentForm
-            parentId={commentId}
-            postId={postId}
-            refetchPost={refetchPost}
-          />
-        </>
+      {status === 'authenticated' && !isDeleted && (
+        <Reactions
+          upvote={upvoteComment}
+          downvote={downvoteComment}
+          isLiked={isLiked}
+          isDisliked={isDisliked}
+        />
       )}
+
+      {status === 'authenticated' && (
+        <NewCommentForm
+          parentId={commentId}
+          postId={postId}
+          refetchPost={refetchPost}
+        />
+      )}
+
       {childComments?.map((child) => (
         <Comment
           key={child.id}
