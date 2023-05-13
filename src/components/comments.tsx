@@ -3,7 +3,7 @@ import { useSession } from 'next-auth/react';
 import { inferQueryOutput } from '../utils/trpc';
 import Button from './button';
 import Comment from './comment';
-import NewCommentForm from './new_comment_form';
+import NewCommentForm from './new-comment-form';
 
 type TComments = inferQueryOutput<'posts.getPost'>['post']['comments'];
 type TComment = TComments[0];

@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import { trpc } from '../utils/trpc';
 import type { TCommentWithChildren } from './comments';
-import NewCommentForm from './new_comment_form';
-import OwnerActions from './owner_actions';
+import NewCommentForm from './new-comment-form';
+import OwnerActions from './owner-actions';
 import Reactions from './reactions';
 import Form from './form';
 

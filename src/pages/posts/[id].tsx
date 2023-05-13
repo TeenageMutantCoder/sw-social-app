@@ -7,7 +7,7 @@ import Alert from '../../components/alert';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import Button from '../../components/button';
-import OwnerActions from '../../components/owner_actions';
+import OwnerActions from '../../components/owner-actions';
 import Reactions from '../../components/reactions';
 import Comments from '../../components/comments';
 import Form from '../../components/form';

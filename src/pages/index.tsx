@@ -5,7 +5,7 @@ import { trpc } from '../utils/trpc';
 import { useRouter } from 'next/router';
 import Alert from '../components/alert';
 import Button from '../components/button';
-import NewPostForm from '../components/new_post_form';
+import NewPostForm from '../components/new-post-form';
 import Image from 'next/image';
 
 const Home: NextPage = () => {
