@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import Alert from '../components/alert';
 import Button from '../components/button';
 import NewPostForm from '../components/new_post_form';
+import Image from 'next/image';
 
 const Home: NextPage = () => {
   const getPostsQuery = trpc.useQuery(['posts.getAllPosts']);
@@ -50,7 +51,7 @@ const Home: NextPage = () => {
         <p>There was an error while getting the posts.</p>
       )}
 
-      {getPostsQuery.data?.map(({ id, user, title, points }) => (
+      {getPostsQuery.data?.map(({ id, user, title, points, media }) => (
         <Button
           key={id}
           theme="outline-dark"
@@ -62,6 +63,15 @@ const Home: NextPage = () => {
           <h2 className="text-lg break-words">{title}</h2>
           <p className="text-sm">{user.name}</p>
           <p className="text-sm">{points} points</p>
+          {media.map(({ externalId }) => (
+            <Image
+              key={externalId}
+              src={`https://pub-6a839333599b4921a1f2e53b7f0fdc23.r2.dev/${externalId}`}
+              alt={`Image for ${title}`}
+              height={200}
+              width={200}
+            />
+          ))}
         </Button>
       ))}
     </>

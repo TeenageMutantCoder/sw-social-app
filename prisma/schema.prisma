@@ -25,6 +25,14 @@ model User {
     commentReactions CommentReaction[]
 }
 
+model Media {
+    id          String @id @default(cuid())
+    externalId  String
+    contentType String
+    post        Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    postId      String
+}
+
 model Post {
     id            String         @id @default(cuid())
     title         String
@@ -32,6 +40,7 @@ model Post {
     points        Int            @default(0)
     user          User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     userId        String
+    media         Media[]
     comments      Comment[]
     createdAt     DateTime       @default(now())
     postReactions PostReaction[]

@@ -7,6 +7,12 @@ export const protectedPostsRouter = createProtectedRouter()
     input: z.object({
       title: z.string(),
       body: z.string(),
+      media: z
+        .object({
+          externalId: z.string(),
+          contentType: z.string(),
+        })
+        .array(),
     }),
     async resolve({ ctx, input }) {
       const newPost = await ctx.prisma.post.create({
@@ -14,6 +20,9 @@ export const protectedPostsRouter = createProtectedRouter()
           title: input.title,
           body: input.body,
           userId: ctx.session.user.id,
+          media: {
+            create: input.media,
+          },
         },
       });
 

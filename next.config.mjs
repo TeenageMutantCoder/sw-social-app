@@ -25,4 +25,10 @@ function defineNextConfig(config) {
 export default defineNextConfig({
   reactStrictMode: true,
   swcMinify: true,
+  images: {
+    domains: [
+      'pub-6a839333599b4921a1f2e53b7f0fdc23.r2.dev',
+      '815ec3504150c1fc556cff5021153e03.r2.cloudflarestorage.com',
+    ],
+  },
 });

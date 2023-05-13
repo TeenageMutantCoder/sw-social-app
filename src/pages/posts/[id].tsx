@@ -11,6 +11,7 @@ import OwnerActions from '../../components/owner_actions';
 import Reactions from '../../components/reactions';
 import Comments from '../../components/comments';
 import Form from '../../components/form';
+import Image from 'next/image';
 
 type TFormInput = {
   title: string;
@@ -126,6 +127,16 @@ const Post: NextPage = () => {
         <p className="my-5 mx-auto max-w-full break-words">
           {getPostQuery.data?.post.body}
         </p>
+
+        {getPostQuery.data?.post.media.map(({ externalId }) => (
+          <Image
+            key={externalId}
+            src={`https://pub-6a839333599b4921a1f2e53b7f0fdc23.r2.dev/${externalId}`}
+            alt={`Image for ${getPostQuery.data?.post.title}`}
+            height={200}
+            width={200}
+          />
+        ))}
 
         <OwnerActions
           isOwner={session?.user?.id === getPostQuery.data?.post.user.id}

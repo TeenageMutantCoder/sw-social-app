@@ -9,6 +9,7 @@ export const postsRouter = createRouter()
           id: true,
           title: true,
           points: true,
+          media: true,
           user: {
             select: {
               name: true,
@@ -19,6 +20,7 @@ export const postsRouter = createRouter()
           createdAt: 'desc',
         },
       });
+
       return posts;
     },
   })
@@ -33,6 +35,7 @@ export const postsRouter = createRouter()
           title: true,
           body: true,
           points: true,
+          media: true,
           user: {
             select: {
               id: true,
