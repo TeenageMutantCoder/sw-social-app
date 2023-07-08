@@ -112,7 +112,7 @@ const Home: NextPage = () => {
                   <AiOutlineDislike className="fill-inherit" />
                 </button>
               </div>
-              <div
+              <button
                 className="w-full text-left cursor-pointer border border-neutral-500 p-2 hover:bg-slate-100"
                 onClick={() => {
                   router.push(`/posts/${id}`);
@@ -129,7 +129,7 @@ const Home: NextPage = () => {
                     width={200}
                   />
                 ))}
-              </div>
+              </button>
             </div>
           )
         )}
