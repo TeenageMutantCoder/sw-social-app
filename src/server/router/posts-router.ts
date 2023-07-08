@@ -15,6 +15,14 @@ export const postsRouter = createRouter()
               name: true,
             },
           },
+          postReactions: {
+            select: {
+              isLike: true,
+            },
+            where: {
+              userId: ctx.session?.user?.id,
+            },
+          },
         },
         orderBy: {
           createdAt: 'desc',

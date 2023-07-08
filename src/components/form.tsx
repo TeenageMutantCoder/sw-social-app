@@ -25,7 +25,7 @@ const Form = ({
     >
       {children}
 
-      <div className="flex">
+      <div className="flex gap-2">
         <Button type="submit" className={submitBtnClassName} />
         {!submitOnly && (
           <>
