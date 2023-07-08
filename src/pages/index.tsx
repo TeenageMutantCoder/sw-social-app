@@ -1,9 +1,9 @@
 import type { NextPage } from 'next';
 import { signIn, useSession } from 'next-auth/react';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { trpc } from '../utils/trpc';
 import { useRouter } from 'next/router';
-import Alert from '../components/alert';
+import { showAlert } from '../components/alert';
 import NewPostForm from '../components/new-post-form';
 import Image from 'next/image';
 import { AiOutlineDislike, AiOutlineLike } from 'react-icons/ai';
@@ -13,22 +13,20 @@ const Home: NextPage = () => {
   const router = useRouter();
   const { status } = useSession();
   const postReactionMutation = trpc.useMutation(['posts.reactToPost']);
-  const hasDeletedPost = router.query.deleted_post;
-  const hasCreatedPost = router.query.created_post;
   const refetchPosts = useCallback(() => {
     getPostsQuery.refetch();
   }, [getPostsQuery]);
 
+  const hasDeletedPost = router.query.deleted_post;
+  const hasCreatedPost = router.query.created_post;
+
+  useEffect(() => {
+    if (hasDeletedPost) showAlert('Successfully deleted post.', 'success');
+    if (hasCreatedPost) showAlert('Successfully created post.', 'success');
+  }, [hasDeletedPost, hasCreatedPost]);
+
   return (
     <>
-      {hasDeletedPost && (
-        <Alert alertType="success">Successfully deleted post.</Alert>
-      )}
-
-      {hasCreatedPost && (
-        <Alert alertType="success">Successfully created post.</Alert>
-      )}
-
       <div className="w-full md:w-3/4 lg:w-1/2 mx-auto">
         {status === 'authenticated' && (
           <NewPostForm className="mb-4" refetchPosts={refetchPosts} />
@@ -59,9 +57,15 @@ const Home: NextPage = () => {
             <div className="flex my-2" key={id}>
               <div className="flex flex-col items-center w-10 border border-neutral-700">
                 <button
-                  className={`w-min p-1 text-2xl hover:scale-125 transition-transform ${postReactions[0]?.isLike ? 'fill-green-500' : ''
+                  className={`w-min p-1 text-2xl hover:scale-125 transition-transform ${status === 'authenticated' && postReactions[0]?.isLike
+                      ? 'fill-green-500'
+                      : ''
                     }`}
                   onClick={() => {
+                    if (status === 'unauthenticated') {
+                      showAlert('Please log in to perform this action.', 'warning');
+                      return;
+                    }
                     postReactionMutation
                       .mutateAsync({
                         isLike: true,
@@ -76,9 +80,16 @@ const Home: NextPage = () => {
                 </button>
                 <p className="text-sm font-semibold">{points}</p>
                 <button
-                  className={`w-min p-1 text-2xl hover:scale-125 transition-transform ${postReactions[0]?.isLike === false ? 'fill-red-600' : ''
+                  className={`w-min p-1 text-2xl hover:scale-125 transition-transform ${status === 'authenticated' &&
+                      postReactions[0]?.isLike === false
+                      ? 'fill-red-600'
+                      : ''
                     }`}
                   onClick={() => {
+                    if (status === 'unauthenticated') {
+                      showAlert('Please log in to perform this action.', 'danger');
+                      return;
+                    }
                     postReactionMutation
                       .mutateAsync({
                         isLike: false,
