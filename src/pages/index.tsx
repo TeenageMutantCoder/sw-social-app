@@ -21,9 +21,11 @@ const Home: NextPage = () => {
   const hasCreatedPost = router.query.created_post;
 
   useEffect(() => {
+    if (!hasDeletedPost && !hasCreatedPost) return; // Early return to prevent infinite loop
     if (hasDeletedPost) showAlert('Successfully deleted post.', 'success');
     if (hasCreatedPost) showAlert('Successfully created post.', 'success');
-  }, [hasDeletedPost, hasCreatedPost]);
+    router.replace('/');
+  }, [router, hasDeletedPost, hasCreatedPost]);
 
   return (
     <>
@@ -63,7 +65,10 @@ const Home: NextPage = () => {
                     }`}
                   onClick={() => {
                     if (status === 'unauthenticated') {
-                      showAlert('Please log in to perform this action.', 'warning');
+                      showAlert(
+                        'Please log in to perform this action.',
+                        'danger'
+                      );
                       return;
                     }
                     postReactionMutation
@@ -87,7 +92,10 @@ const Home: NextPage = () => {
                     }`}
                   onClick={() => {
                     if (status === 'unauthenticated') {
-                      showAlert('Please log in to perform this action.', 'danger');
+                      showAlert(
+                        'Please log in to perform this action.',
+                        'danger'
+                      );
                       return;
                     }
                     postReactionMutation
