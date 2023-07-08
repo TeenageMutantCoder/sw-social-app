@@ -7,6 +7,7 @@ import { showAlert } from '../components/alert';
 import NewPostForm from '../components/new-post-form';
 import Image from 'next/image';
 import { AiOutlineDislike, AiOutlineLike } from 'react-icons/ai';
+import { getPointsText } from '../utils';
 
 const Home: NextPage = () => {
   const getPostsQuery = trpc.useQuery(['posts.getAllPosts']);
@@ -57,7 +58,7 @@ const Home: NextPage = () => {
         {getPostsQuery.data?.map(
           ({ id, user, title, points, media, postReactions }) => (
             <div className="flex my-2" key={id}>
-              <div className="flex flex-col items-center w-10 border border-neutral-700">
+              <div className="flex flex-col items-center w-12 border border-neutral-700">
                 <button
                   className={`w-min p-1 text-2xl hover:scale-125 transition-transform ${status === 'authenticated' && postReactions[0]?.isLike
                       ? 'fill-green-500'
@@ -83,7 +84,7 @@ const Home: NextPage = () => {
                 >
                   <AiOutlineLike className="fill-inherit" />
                 </button>
-                <p className="text-sm font-semibold">{points}</p>
+                <p className="text-xs font-semibold">{getPointsText(points)}</p>
                 <button
                   className={`w-min p-1 text-2xl hover:scale-125 transition-transform ${status === 'authenticated' &&
                       postReactions[0]?.isLike === false
