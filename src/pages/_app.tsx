@@ -6,11 +6,26 @@ import superjson from 'superjson';
 import { SessionProvider } from 'next-auth/react';
 import '../styles/globals.css';
 import Layout from '../components/layout';
+import { useEffect } from 'react';
+
+declare global {
+  // eslint-disable-next-line no-unused-vars
+  interface Window {
+    swSocialApp: {
+      alerts?: string[];
+    };
+  }
+}
 
 const MyApp: AppType = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.swSocialApp = {};
+    }
+  }, []);
   return (
     <SessionProvider session={session}>
       <Layout>

@@ -33,6 +33,10 @@ export const showAlert = (
   text: string,
   type: TAlertProps['alertType'] = DEFAULT_ALERT_TYPE
 ) => {
+  if (!window.swSocialApp.alerts) window.swSocialApp.alerts = [];
+  if (window.swSocialApp.alerts.includes(text)) return;
+
+  window.swSocialApp.alerts.push(text);
   const alertElement = document.createElement('div');
   const classNames = [baseAlertClassNames, alertTypeClassNames[type]];
   alertElement.className = classNames.join(' ');
@@ -40,6 +44,9 @@ export const showAlert = (
   alertElement.onanimationend = (e) => {
     if (e.animationName.includes('fade-out')) {
       alertElement.remove();
+      window.swSocialApp.alerts = window.swSocialApp.alerts!.filter(
+        (alert) => alert !== text
+      );
     }
   };
 
