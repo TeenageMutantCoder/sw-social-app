@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { trpc } from '../../utils/trpc';
 import { useCallback, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import Alert from '../../components/alert';
+import { showAlert } from '../../components/alert';
 import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import Button from '../../components/button';
@@ -12,7 +12,7 @@ import Reactions from '../../components/reactions';
 import Comments from '../../components/comments';
 import Form from '../../components/form';
 import Image from 'next/image';
-import Spinner from '../../components/spinner'
+import Spinner from '../../components/spinner';
 
 type TFormInput = {
   title: string;
@@ -38,9 +38,14 @@ const Post: NextPage = () => {
   }, [getPostQuery]);
 
   const deletePost = useCallback(() => {
-    deletePostMutation.mutateAsync(postId).then(() => {
-      router.push('/?deleted_post=true');
-    });
+    deletePostMutation
+      .mutateAsync(postId)
+      .then(() => {
+        router.push('/?deleted_post=true');
+      })
+      .catch(() => {
+        showAlert('There was an error while deleting this post.', 'danger');
+      });
   }, [deletePostMutation, postId, router]);
 
   const startEditingPost = useCallback(() => {
@@ -53,11 +58,16 @@ const Post: NextPage = () => {
 
   const onSubmitHandler: SubmitHandler<TFormInput> = useCallback(
     ({ title, body }) => {
-      updatePostMutation.mutateAsync({ id: postId, title, body }).then(() => {
-        reset();
-        stopEditingPost();
-        refetchPost();
-      });
+      updatePostMutation
+        .mutateAsync({ id: postId, title, body })
+        .then(() => {
+          reset();
+          stopEditingPost();
+          refetchPost();
+        })
+        .catch(() => {
+          showAlert('There was an error while updating this post.', 'danger');
+        });
     },
     [updatePostMutation, reset, postId, stopEditingPost, refetchPost]
   );
@@ -102,18 +112,6 @@ const Post: NextPage = () => {
 
   return (
     <>
-      {deletePostMutation.isError && (
-        <Alert alertType="danger">
-          There was an error while deleting this post.
-        </Alert>
-      )}
-
-      {updatePostMutation.isError && (
-        <Alert alertType="danger">
-          There was an error while editing this post.
-        </Alert>
-      )}
-
       <Button theme="outline-default" onClick={navigateHome}>
         Go back to posts
       </Button>
