@@ -82,7 +82,14 @@ const Home: NextPage = () => {
           </p>
         )}
 
-        {getPostsQuery.data?.length === 0 && <p>No posts here, yet</p>}
+        {getPostsQuery.data?.length === 0 && (
+          <div className="w-full h-full fixed top-0 left-0 flex flex-col justify-center items-center -z-10">
+            <p className="text-center text-lg font-bold mb-2">
+              No posts here, yet
+            </p>
+            <Button onClick={refetchPosts}>Try again</Button>
+          </div>
+        )}
         {getPostsQuery.isLoading && <Spinner className="-z-10" />}
         {getPostsQuery.isError && (
           <div className="w-full h-full fixed top-0 left-0 flex flex-col justify-center items-center -z-10">
