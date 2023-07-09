@@ -8,6 +8,7 @@ import NewPostForm from '../components/new-post-form';
 import Image from 'next/image';
 import { AiOutlineDislike, AiOutlineLike } from 'react-icons/ai';
 import { getPointsText } from '../utils';
+import Spinner from '../components/spinner';
 
 const Home: NextPage = () => {
   const getPostsQuery = trpc.useQuery(['posts.getAllPosts']);
@@ -50,7 +51,7 @@ const Home: NextPage = () => {
         )}
 
         {getPostsQuery.data?.length === 0 && <p>No posts here, yet</p>}
-        {getPostsQuery.isLoading && <p>Loading...</p>}
+        {getPostsQuery.isLoading && <Spinner />}
         {getPostsQuery.isError && (
           <p>There was an error while getting the posts.</p>
         )}

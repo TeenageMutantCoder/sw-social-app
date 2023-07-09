@@ -12,6 +12,7 @@ import Reactions from '../../components/reactions';
 import Comments from '../../components/comments';
 import Form from '../../components/form';
 import Image from 'next/image';
+import Spinner from '../../components/spinner'
 
 type TFormInput = {
   title: string;
@@ -75,8 +76,7 @@ const Post: NextPage = () => {
     });
   }, [postReactionMutation, postId, refetchPost]);
 
-  if (getPostQuery.isLoading) return <p>Loading...</p>;
-
+  if (getPostQuery.isLoading) return <Spinner />;
   if (getPostQuery.isError)
     return <p>There was an error while getting this post</p>;
 
