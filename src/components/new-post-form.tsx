@@ -8,6 +8,7 @@ import Form from './form';
 import Base64 from 'crypto-js/enc-base64';
 import MD5 from 'crypto-js/md5';
 import WordArray from 'crypto-js/lib-typedarrays';
+import { showAlert } from './alert';
 
 type TNewPostFormInput = {
   title: string;
@@ -58,12 +59,17 @@ const NewPostForm = ({ className, refetchPosts }: TNewPostFormProps) => {
         });
       }
 
-      createPost.mutateAsync({ title, body, media: mediaPayload }).then(() => {
-        reset();
-        setIsOpen(false);
-        refetchPosts();
-        router.push('/?created_post=true');
-      });
+      createPost
+        .mutateAsync({ title, body, media: mediaPayload })
+        .then(() => {
+          reset();
+          setIsOpen(false);
+          refetchPosts();
+          router.push('/?created_post=true');
+        })
+        .catch(() => {
+          showAlert('There was an error creating this post.', 'danger');
+        });
     },
     [createPost, reset, refetchPosts, router, client]
   );
