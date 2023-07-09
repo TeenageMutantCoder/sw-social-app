@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { AiOutlineDislike, AiOutlineLike } from 'react-icons/ai';
 import { getPointsText } from '../utils';
 import Spinner from '../components/spinner';
+import Button from '../components/button';
 
 const Home: NextPage = () => {
   const getPostsQuery = trpc.useQuery(['posts.getAllPosts']);
@@ -51,9 +52,14 @@ const Home: NextPage = () => {
         )}
 
         {getPostsQuery.data?.length === 0 && <p>No posts here, yet</p>}
-        {getPostsQuery.isLoading && <Spinner />}
+        {getPostsQuery.isLoading && <Spinner className="-z-10" />}
         {getPostsQuery.isError && (
-          <p>There was an error while getting the posts.</p>
+          <div className="w-full h-full fixed top-0 left-0 flex flex-col justify-center items-center -z-10">
+            <p className="text-center text-lg font-bold mb-2">
+              There was an error while getting the posts.
+            </p>
+            <Button onClick={refetchPosts}>Try again</Button>
+          </div>
         )}
 
         {getPostsQuery.data?.map(
