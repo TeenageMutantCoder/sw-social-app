@@ -94,11 +94,12 @@ const Comment = ({
   }, [commentReactionMutation, commentId, refetchPost]);
 
   return (
-    <div style={style} className={`mb-2 ${className}`}>
+    <div style={style} className={`mb-2 ${className ? className : ''}`}>
       {isEditing && (
         <Form
           submitHandler={handleSubmit(onSubmitHandler)}
           cancelHandler={stopEditingComment}
+          className="mb-2"
         >
           <textarea
             placeholder="Body"

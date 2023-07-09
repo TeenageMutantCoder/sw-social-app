@@ -20,7 +20,7 @@ const Form = ({
 }: TFormButtonsPorps) => {
   return (
     <form
-      className={`flex flex-col mx-auto gap-2 ${className}`}
+      className={`flex flex-col mx-auto gap-2 ${className ? className : ''}`}
       onSubmit={submitHandler}
     >
       {children}
