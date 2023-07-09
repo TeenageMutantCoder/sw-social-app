@@ -8,8 +8,9 @@ generator client {
 datasource db {
     // NOTE: Uncomment the below line and comment out line 11 to for convenient local development
     // provider = "sqlite"
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+    provider     = "mysql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
 }
 
 model User {
@@ -27,6 +28,8 @@ model Media {
     contentType String
     post        Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
     postId      String
+
+    @@index([postId])
 }
 
 model Post {
@@ -40,6 +43,8 @@ model Post {
     comments      Comment[]
     createdAt     DateTime       @default(now())
     postReactions PostReaction[]
+
+    @@index([userId])
 }
 
 model Comment {
@@ -51,11 +56,15 @@ model Comment {
     userId           String
     post             Post              @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     postId           String
-    parent           Comment?          @relation("ParentChildComments", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    parent           Comment?          @relation("ParentChildComments", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
     parentId         String?
     children         Comment[]         @relation("ParentChildComments")
     createdAt        DateTime          @default(now())
     commentReactions CommentReaction[]
+
+    @@index([userId])
+    @@index([postId])
+    @@index([parentId])
 }
 
 model PostReaction {
@@ -66,6 +75,7 @@ model PostReaction {
     isLike Boolean
 
     @@unique([userId, postId])
+    @@index([postId])
 }
 
 model CommentReaction {
@@ -76,4 +86,5 @@ model CommentReaction {
     isLike    Boolean
 
     @@unique([userId, commentId])
+    @@index([commentId])
 }
