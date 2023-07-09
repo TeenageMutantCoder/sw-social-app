@@ -35,7 +35,7 @@ const NewCommentForm = ({
   );
 
   return (
-    <Form submitHandler={handleSubmit(onSubmitHandler)} submitOnly={true}>
+    <Form submitHandler={handleSubmit(onSubmitHandler)} submitOnly={true} className="mb-2">
       <textarea
         className="w-full"
         placeholder="Add your comment"
