@@ -88,7 +88,14 @@ const Post: NextPage = () => {
 
   if (getPostQuery.isLoading) return <Spinner />;
   if (getPostQuery.isError)
-    return <p>There was an error while getting this post</p>;
+    return (
+      <div className="w-full h-full fixed top-0 left-0 flex flex-col justify-center items-center">
+        <p className="text-center text-lg font-bold mb-2">
+          There was an error while getting this post
+        </p>
+        <Button onClick={navigateHome}>Go back to posts</Button>
+      </div>
+    );
 
   if (isEditing)
     return (
