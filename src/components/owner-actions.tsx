@@ -1,4 +1,4 @@
-import Button from './button';
+import React from 'react';
 
 type TOwnerActionsProps = {
   isOwner: boolean;
@@ -14,13 +14,13 @@ const OwnerActions = ({
   if (!isOwner) return null;
 
   return (
-    <div className="flex my-1">
-      <Button theme="outline-red" onClick={deleteHandler}>
+    <div className="flex gap-2 h-fit">
+      <button className="text-sm text-neutral-500 hover:text-neutral-300 font-semibold" onClick={deleteHandler}>
         Delete
-      </Button>
-      <Button theme="outline-yellow" onClick={editHandler}>
+      </button>
+      <button className="text-sm text-neutral-500 hover:text-neutral-300 font-semibold" onClick={editHandler}>
         Edit
-      </Button>
+      </button>
     </div>
   );
 };

@@ -8,11 +8,12 @@ import { useForm } from 'react-hook-form';
 import type { SubmitHandler } from 'react-hook-form';
 import Button from '../../components/button';
 import OwnerActions from '../../components/owner-actions';
-import Reactions from '../../components/reactions';
 import Comments from '../../components/comments';
 import Form from '../../components/form';
 import Image from 'next/image';
 import Spinner from '../../components/spinner';
+import { AiOutlineDislike, AiOutlineLike } from 'react-icons/ai';
+import { getPointsText } from '../../utils';
 
 type TFormInput = {
   title: string;
@@ -74,18 +75,6 @@ const Post: NextPage = () => {
 
   const postReactionMutation = trpc.useMutation(['posts.reactToPost']);
 
-  const upvotePost = useCallback(() => {
-    postReactionMutation.mutateAsync({ isLike: true, postId }).then(() => {
-      refetchPost();
-    });
-  }, [postReactionMutation, postId, refetchPost]);
-
-  const downvotePost = useCallback(() => {
-    postReactionMutation.mutateAsync({ isLike: false, postId }).then(() => {
-      refetchPost();
-    });
-  }, [postReactionMutation, postId, refetchPost]);
-
   if (getPostQuery.isLoading) return <Spinner />;
   if (getPostQuery.isError)
     return (
@@ -118,47 +107,90 @@ const Post: NextPage = () => {
     );
 
   return (
-    <>
+    <div className="w-full md:w-3/4 lg:w-1/2 mx-auto">
       <Button theme="outline-default" onClick={navigateHome}>
         Go back to posts
       </Button>
-
-      <div className="mx-auto w-3/4 md:w-1/2 flex flex-col items-center">
-        <h1 className="text-2xl mt-2 mx-auto max-w-full break-words">
-          {getPostQuery.data?.post.title}
-        </h1>
-        <p className="text-sm">{getPostQuery.data?.post.user.name}</p>
-        <p className="text-sm">{getPostQuery.data?.post.points} points</p>
-        <p className="my-5 mx-auto max-w-full break-words">
-          {getPostQuery.data?.post.body}
-        </p>
-
-        {getPostQuery.data?.post.media.map(({ externalId }) => (
-          <Image
-            key={externalId}
-            src={`https://pub-6a839333599b4921a1f2e53b7f0fdc23.r2.dev/${externalId}`}
-            alt={`Image for ${getPostQuery.data?.post.title}`}
-            height={200}
-            width={200}
-          />
-        ))}
-
-        <OwnerActions
-          isOwner={session?.user?.id === getPostQuery.data?.post.user.id}
-          deleteHandler={deletePost}
-          editHandler={startEditingPost}
-        />
-
-        {status === 'authenticated' && (
-          <>
-            <Reactions
-              upvote={upvotePost}
-              downvote={downvotePost}
-              isLiked={!!getPostQuery.data?.isLikedByCurrentUser}
-              isDisliked={!!getPostQuery.data?.isDislikedByCurrentUser}
+      <div className="flex my-2">
+        <div className="flex flex-col items-center w-12 border border-neutral-700">
+          <button
+            className={`w-min p-1 text-2xl hover:scale-125 transition-transform ${status === 'authenticated' &&
+                getPostQuery.data?.isLikedByCurrentUser
+                ? 'fill-green-500'
+                : ''
+              }`}
+            onClick={() => {
+              if (status === 'unauthenticated') {
+                showAlert('Please log in to perform this action.', 'danger');
+                return;
+              }
+              postReactionMutation
+                .mutateAsync({
+                  isLike: true,
+                  postId,
+                })
+                .then(() => {
+                  getPostQuery.refetch();
+                });
+            }}
+          >
+            <AiOutlineLike className="fill-inherit" />
+          </button>
+          <p className="text-xs font-semibold">
+            {getPostQuery.data && getPointsText(getPostQuery.data.post.points)}
+          </p>
+          <button
+            className={`w-min p-1 text-2xl hover:scale-125 transition-transform ${status === 'authenticated' &&
+                getPostQuery.data?.isDislikedByCurrentUser
+                ? 'fill-red-600'
+                : ''
+              }`}
+            onClick={() => {
+              if (status === 'unauthenticated') {
+                showAlert('Please log in to perform this action.', 'danger');
+                return;
+              }
+              postReactionMutation
+                .mutateAsync({
+                  isLike: false,
+                  postId,
+                })
+                .then(() => {
+                  getPostQuery.refetch();
+                });
+            }}
+          >
+            <AiOutlineDislike className="fill-inherit" />
+          </button>
+        </div>
+        <div className="w-full border border-neutral-500 p-2 flex flex-col">
+          <div className="flex justify-between">
+            <p className="text-xs mb-2 break-all pr-2">
+              Posted by: {getPostQuery.data?.post.user.name}
+            </p>
+            <OwnerActions
+              isOwner={session?.user?.id === getPostQuery.data?.post.user.id}
+              deleteHandler={deletePost}
+              editHandler={startEditingPost}
             />
-          </>
-        )}
+          </div>
+          <h1 className="text-2xl max-w-full break-words">
+            {getPostQuery.data?.post.title}
+          </h1>
+          <p className="my-5 max-w-full break-words">
+            {getPostQuery.data?.post.body}
+          </p>
+
+          {getPostQuery.data?.post.media.map(({ externalId }) => (
+            <Image
+              key={externalId}
+              src={`https://pub-6a839333599b4921a1f2e53b7f0fdc23.r2.dev/${externalId}`}
+              alt={`Image for ${getPostQuery.data?.post.title}`}
+              height={200}
+              width={200}
+            />
+          ))}
+        </div>
       </div>
 
       <Comments
@@ -166,7 +198,7 @@ const Post: NextPage = () => {
         comments={getPostQuery.data?.post.comments}
         refetchPost={refetchPost}
       />
-    </>
+    </div>
   );
 };
 
