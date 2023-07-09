@@ -8,6 +8,7 @@ type TNewCommentFormProps = {
   postId: string;
   refetchPost: () => void;
   parentId?: string;
+  cancelHandler?: () => void;
 };
 
 type TNewCommentFormInput = {
@@ -18,6 +19,7 @@ const NewCommentForm = ({
   postId,
   parentId,
   refetchPost,
+  cancelHandler,
 }: TNewCommentFormProps) => {
   const createComment = trpc.useMutation(['comments.createComment']);
   const { register, handleSubmit, reset } = useForm<TNewCommentFormInput>();
@@ -35,7 +37,12 @@ const NewCommentForm = ({
   );
 
   return (
-    <Form submitHandler={handleSubmit(onSubmitHandler)} submitOnly={true} className="mb-2">
+    <Form
+      submitHandler={handleSubmit(onSubmitHandler)}
+      cancelHandler={cancelHandler}
+      submitOnly={true}
+      className="mb-2"
+    >
       <textarea
         className="w-full"
         placeholder="Add your comment"

@@ -151,6 +151,7 @@ const Comment = ({
           parentId={commentId}
           postId={postId}
           refetchPost={refetchPost}
+          cancelHandler={() => setIsReplying(false)}
         />
       )}
 

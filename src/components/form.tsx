@@ -27,14 +27,12 @@ const Form = ({
 
       <div className="flex gap-2">
         <Button type="submit" className={submitBtnClassName} />
-        {!submitOnly && (
-          <>
-            <Button theme="alternative" onClick={cancelHandler}>
-              Cancel
-            </Button>
-            <Button theme="alternative" type="reset" />
-          </>
+        {cancelHandler && (
+          <Button theme="alternative" onClick={cancelHandler}>
+            Cancel
+          </Button>
         )}
+        {!submitOnly && <Button theme="alternative" type="reset" />}
       </div>
     </form>
   );
