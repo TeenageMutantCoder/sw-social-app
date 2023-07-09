@@ -44,9 +44,9 @@ export const showAlert = (
   alertElement.onanimationend = (e) => {
     if (e.animationName.includes('fade-out')) {
       alertElement.remove();
-      window.swSocialApp.alerts = window.swSocialApp.alerts!.filter(
+      window.swSocialApp.alerts = window.swSocialApp.alerts?.filter(
         (alert) => alert !== text
-      );
+      ) ?? [];
     }
   };
 

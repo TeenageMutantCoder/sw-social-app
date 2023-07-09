@@ -7,6 +7,7 @@ import { SessionProvider } from 'next-auth/react';
 import '../styles/globals.css';
 import Layout from '../components/layout';
 import { useEffect } from 'react';
+import { showAlert } from '../components/alert';
 
 declare global {
   // eslint-disable-next-line no-unused-vars
@@ -24,6 +25,9 @@ const MyApp: AppType = ({
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.swSocialApp = {};
+      window.onunhandledrejection = () => {
+        showAlert('Something went wrong.', 'danger');
+      };
     }
   }, []);
   return (
