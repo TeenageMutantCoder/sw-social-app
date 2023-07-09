@@ -54,6 +54,8 @@ const Comment = ({
   }, [refetchPost, deleteCommentMutation, commentId]);
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isReplying, setIsReplying] = useState(false);
+
   const startEditingComment = useCallback(() => {
     setIsEditing(true);
   }, [setIsEditing]);
@@ -112,28 +114,38 @@ const Comment = ({
           <p className="text-xs">
             Written by: {isDeleted ? 'deleted' : user.name}
           </p>
+
+          {!isDeleted && (
+            <div className="flex justify-between items-center -ml-1 ">
+              <Reactions
+                upvote={upvoteComment}
+                downvote={downvoteComment}
+                isLiked={isLiked}
+                isDisliked={isDisliked}
+                points={points}
+                horizontal
+              />
+              {status === 'authenticated' && (
+                <div className="flex gap-2">
+                  <OwnerActions
+                    isOwner={session?.user?.id === user.id}
+                    deleteHandler={deleteComment}
+                    editHandler={startEditingComment}
+                  />
+                  <button
+                    className="text-sm text-neutral-500 hover:text-neutral-300 font-semibold"
+                    onClick={() => setIsReplying((replying) => !replying)}
+                  >
+                    Reply
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </>
       )}
 
-      {!isDeleted && (
-        <div className="flex justify-between items-center -ml-1 ">
-          <Reactions
-            upvote={upvoteComment}
-            downvote={downvoteComment}
-            isLiked={isLiked}
-            isDisliked={isDisliked}
-            points={points}
-            horizontal
-          />
-          <OwnerActions
-            isOwner={session?.user?.id === user.id}
-            deleteHandler={deleteComment}
-            editHandler={startEditingComment}
-          />
-        </div>
-      )}
-
-      {status === 'authenticated' && (
+      {status === 'authenticated' && isReplying && (
         <NewCommentForm
           parentId={commentId}
           postId={postId}
