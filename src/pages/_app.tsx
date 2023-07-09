@@ -1,4 +1,5 @@
 // src/pages/_app.tsx
+import { Session } from 'next-auth';
 import { withTRPC } from '@trpc/next';
 import type { AppRouter } from '../server/router';
 import type { AppType } from 'next/dist/shared/lib/utils';
@@ -18,7 +19,7 @@ declare global {
   }
 }
 
-const MyApp: AppType = ({
+const MyApp: AppType<{ session: Session }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
