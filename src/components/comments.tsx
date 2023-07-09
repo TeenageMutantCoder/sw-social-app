@@ -64,7 +64,7 @@ const Comments = ({ comments, postId, refetchPost }: TCommentsProps) => {
       </Button>
       <div className="mt-3">
         {status === 'authenticated' && (
-          <NewCommentForm postId={postId} refetchPost={refetchPost} />
+          <NewCommentForm postId={postId} onSubmit={refetchPost} />
         )}
         {commentTree.length === 0 && <p>No comments, yet.</p>}
         {commentTree.map((comment) => (

@@ -6,7 +6,7 @@ import Form from './form';
 
 type TNewCommentFormProps = {
   postId: string;
-  refetchPost: () => void;
+  onSubmit: () => void;
   parentId?: string;
   cancelHandler?: () => void;
 };
@@ -18,7 +18,7 @@ type TNewCommentFormInput = {
 const NewCommentForm = ({
   postId,
   parentId,
-  refetchPost,
+  onSubmit,
   cancelHandler,
 }: TNewCommentFormProps) => {
   const createComment = trpc.useMutation(['comments.createComment']);
@@ -30,10 +30,10 @@ const NewCommentForm = ({
         .mutateAsync({ body, parentCommentId: parentId, postId })
         .then(() => {
           reset();
-          refetchPost();
+          onSubmit();
         });
     },
-    [parentId, postId, createComment, reset, refetchPost]
+    [parentId, postId, createComment, reset, onSubmit]
   );
 
   return (

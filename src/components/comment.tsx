@@ -150,7 +150,10 @@ const Comment = ({
         <NewCommentForm
           parentId={commentId}
           postId={postId}
-          refetchPost={refetchPost}
+          onSubmit={() => {
+            setIsReplying(false);
+            refetchPost();
+          }}
           cancelHandler={() => setIsReplying(false)}
         />
       )}
