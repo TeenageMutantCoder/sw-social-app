@@ -12,8 +12,7 @@ import Comments from '../../components/comments';
 import Form from '../../components/form';
 import Image from 'next/image';
 import Spinner from '../../components/spinner';
-import { AiOutlineDislike, AiOutlineLike } from 'react-icons/ai';
-import { getPointsText } from '../../utils';
+import Reactions from '../../components/reactions';
 
 type TFormInput = {
   title: string;
@@ -24,11 +23,12 @@ const Post: NextPage = () => {
   const { register, handleSubmit, reset } = useForm<TFormInput>();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const postId = router.query.id as string;
   const getPostQuery = trpc.useQuery(['posts.getPost', postId]);
   const deletePostMutation = trpc.useMutation(['posts.deletePost']);
   const updatePostMutation = trpc.useMutation(['posts.updatePost']);
+  const postReactionMutation = trpc.useMutation(['posts.reactToPost']);
 
   const navigateHome = useCallback(() => {
     router.push('/');
@@ -37,6 +37,28 @@ const Post: NextPage = () => {
   const refetchPost = useCallback(() => {
     getPostQuery.refetch();
   }, [getPostQuery]);
+
+  const upvotePost = useCallback(() => {
+    postReactionMutation
+      .mutateAsync({
+        isLike: true,
+        postId,
+      })
+      .then(() => {
+        getPostQuery.refetch();
+      });
+  }, [postReactionMutation, postId, getPostQuery]);
+
+  const downvotePost = useCallback(() => {
+    postReactionMutation
+      .mutateAsync({
+        isLike: false,
+        postId,
+      })
+      .then(() => {
+        getPostQuery.refetch();
+      });
+  }, [postReactionMutation, postId, getPostQuery]);
 
   const deletePost = useCallback(() => {
     deletePostMutation
@@ -72,8 +94,6 @@ const Post: NextPage = () => {
     },
     [updatePostMutation, reset, postId, stopEditingPost, refetchPost]
   );
-
-  const postReactionMutation = trpc.useMutation(['posts.reactToPost']);
 
   if (getPostQuery.isLoading) return <Spinner />;
   if (getPostQuery.isError)
@@ -112,56 +132,14 @@ const Post: NextPage = () => {
         Go back to posts
       </Button>
       <div className="flex my-2">
-        <div className="flex flex-col items-center w-12 border border-neutral-700">
-          <button
-            className={`w-min p-1 text-2xl hover:scale-125 transition-transform ${status === 'authenticated' &&
-                getPostQuery.data?.isLikedByCurrentUser
-                ? 'fill-green-500'
-                : ''
-              }`}
-            onClick={() => {
-              if (status === 'unauthenticated') {
-                showAlert('Please log in to perform this action.', 'danger');
-                return;
-              }
-              postReactionMutation
-                .mutateAsync({
-                  isLike: true,
-                  postId,
-                })
-                .then(() => {
-                  getPostQuery.refetch();
-                });
-            }}
-          >
-            <AiOutlineLike className="fill-inherit" />
-          </button>
-          <p className="text-xs font-semibold">
-            {getPostQuery.data && getPointsText(getPostQuery.data.post.points)}
-          </p>
-          <button
-            className={`w-min p-1 text-2xl hover:scale-125 transition-transform ${status === 'authenticated' &&
-                getPostQuery.data?.isDislikedByCurrentUser
-                ? 'fill-red-600'
-                : ''
-              }`}
-            onClick={() => {
-              if (status === 'unauthenticated') {
-                showAlert('Please log in to perform this action.', 'danger');
-                return;
-              }
-              postReactionMutation
-                .mutateAsync({
-                  isLike: false,
-                  postId,
-                })
-                .then(() => {
-                  getPostQuery.refetch();
-                });
-            }}
-          >
-            <AiOutlineDislike className="fill-inherit" />
-          </button>
+        <div className="border border-neutral-700">
+          <Reactions
+            isLiked={getPostQuery.data?.isLikedByCurrentUser ?? false}
+            isDisliked={getPostQuery.data?.isDislikedByCurrentUser ?? false}
+            downvote={downvotePost}
+            upvote={upvotePost}
+            points={getPostQuery.data?.post.points ?? 0}
+          />
         </div>
         <div className="w-full border border-neutral-500 p-2 flex flex-col">
           <div className="flex justify-between">

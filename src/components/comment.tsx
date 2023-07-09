@@ -108,27 +108,29 @@ const Comment = ({
 
       {!isEditing && (
         <>
-          <p className="break-words mb-3">{isDeleted ? 'deleted' : body}</p>
-          <p className="text-sm">{isDeleted ? 'deleted' : user.name}</p>
-          <p className="text-sm">{points} points</p>
+          <p className="break-words">{isDeleted ? 'deleted' : body}</p>
+          <p className="text-xs">
+            Written by: {isDeleted ? 'deleted' : user.name}
+          </p>
         </>
       )}
 
       {!isDeleted && (
-        <OwnerActions
-          isOwner={session?.user?.id === user.id}
-          deleteHandler={deleteComment}
-          editHandler={startEditingComment}
-        />
-      )}
-
-      {status === 'authenticated' && !isDeleted && (
-        <Reactions
-          upvote={upvoteComment}
-          downvote={downvoteComment}
-          isLiked={isLiked}
-          isDisliked={isDisliked}
-        />
+        <div className="flex justify-between items-center -ml-1 ">
+          <Reactions
+            upvote={upvoteComment}
+            downvote={downvoteComment}
+            isLiked={isLiked}
+            isDisliked={isDisliked}
+            points={points}
+            horizontal
+          />
+          <OwnerActions
+            isOwner={session?.user?.id === user.id}
+            deleteHandler={deleteComment}
+            editHandler={startEditingComment}
+          />
+        </div>
       )}
 
       {status === 'authenticated' && (
@@ -139,7 +141,7 @@ const Comment = ({
         />
       )}
 
-      <div className="ml-3 pl-3" style={{ borderLeft: '1px solid gray' }}>
+      <div className="ml-3 mt-2 pl-3" style={{ borderLeft: '1px solid gray' }}>
         {childComments?.map((child) => (
           <Comment
             key={child.id}

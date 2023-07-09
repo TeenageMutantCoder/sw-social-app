@@ -6,10 +6,9 @@ import { useRouter } from 'next/router';
 import { showAlert } from '../components/alert';
 import NewPostForm from '../components/new-post-form';
 import Image from 'next/image';
-import { AiOutlineDislike, AiOutlineLike } from 'react-icons/ai';
-import { getPointsText } from '../utils';
 import Spinner from '../components/spinner';
 import Button from '../components/button';
+import Reactions from '../components/reactions';
 
 const Home: NextPage = () => {
   const getPostsQuery = trpc.useQuery(['posts.getAllPosts']);
@@ -29,6 +28,38 @@ const Home: NextPage = () => {
     if (hasCreatedPost) showAlert('Successfully created post.', 'success');
     router.replace('/');
   }, [router, hasDeletedPost, hasCreatedPost]);
+
+  const createUpvotePostFn = useCallback(
+    (postId: string) => {
+      return () => {
+        postReactionMutation
+          .mutateAsync({
+            isLike: true,
+            postId,
+          })
+          .then(() => {
+            getPostsQuery.refetch();
+          });
+      };
+    },
+    [postReactionMutation, getPostsQuery]
+  );
+
+  const createDownvotePostFn = useCallback(
+    (postId: string) => {
+      return () => {
+        postReactionMutation
+          .mutateAsync({
+            isLike: false,
+            postId,
+          })
+          .then(() => {
+            getPostsQuery.refetch();
+          });
+      };
+    },
+    [postReactionMutation, getPostsQuery]
+  );
 
   return (
     <>
@@ -65,59 +96,14 @@ const Home: NextPage = () => {
         {getPostsQuery.data?.map(
           ({ id, user, title, points, media, postReactions }) => (
             <div className="flex my-2" key={id}>
-              <div className="flex flex-col items-center w-12 border border-neutral-700">
-                <button
-                  className={`w-min p-1 text-2xl hover:scale-125 transition-transform ${status === 'authenticated' && postReactions[0]?.isLike
-                      ? 'fill-green-500'
-                      : ''
-                    }`}
-                  onClick={() => {
-                    if (status === 'unauthenticated') {
-                      showAlert(
-                        'Please log in to perform this action.',
-                        'danger'
-                      );
-                      return;
-                    }
-                    postReactionMutation
-                      .mutateAsync({
-                        isLike: true,
-                        postId: id,
-                      })
-                      .then(() => {
-                        getPostsQuery.refetch();
-                      });
-                  }}
-                >
-                  <AiOutlineLike className="fill-inherit" />
-                </button>
-                <p className="text-xs font-semibold">{getPointsText(points)}</p>
-                <button
-                  className={`w-min p-1 text-2xl hover:scale-125 transition-transform ${status === 'authenticated' &&
-                      postReactions[0]?.isLike === false
-                      ? 'fill-red-600'
-                      : ''
-                    }`}
-                  onClick={() => {
-                    if (status === 'unauthenticated') {
-                      showAlert(
-                        'Please log in to perform this action.',
-                        'danger'
-                      );
-                      return;
-                    }
-                    postReactionMutation
-                      .mutateAsync({
-                        isLike: false,
-                        postId: id,
-                      })
-                      .then(() => {
-                        getPostsQuery.refetch();
-                      });
-                  }}
-                >
-                  <AiOutlineDislike className="fill-inherit" />
-                </button>
+              <div className="border border-neutral-700">
+                <Reactions
+                  isLiked={postReactions[0]?.isLike === true}
+                  isDisliked={postReactions[0]?.isLike === false}
+                  upvote={createUpvotePostFn(id)}
+                  downvote={createDownvotePostFn(id)}
+                  points={points}
+                />
               </div>
               <button
                 className="w-full text-left cursor-pointer border border-neutral-500 p-2 hover:bg-slate-100"
