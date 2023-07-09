@@ -108,22 +108,24 @@ const Post: NextPage = () => {
 
   if (isEditing)
     return (
-      <Form
-        submitHandler={handleSubmit(onSubmitHandler)}
-        cancelHandler={stopEditingPost}
-      >
-        <input
-          type="text"
-          placeholder="Title"
-          defaultValue={getPostQuery.data?.post.title}
-          {...register('title', { required: true })}
-        />
-        <textarea
-          placeholder="Body"
-          defaultValue={getPostQuery.data?.post.body}
-          {...register('body', { required: true })}
-        />
-      </Form>
+      <div className="w-full md:w-3/4 lg:w-1/2 mx-auto">
+        <Form
+          submitHandler={handleSubmit(onSubmitHandler)}
+          cancelHandler={stopEditingPost}
+        >
+          <input
+            type="text"
+            placeholder="Title"
+            defaultValue={getPostQuery.data?.post.title}
+            {...register('title', { required: true })}
+          />
+          <textarea
+            placeholder="Body"
+            defaultValue={getPostQuery.data?.post.body}
+            {...register('body', { required: true })}
+          />
+        </Form>
+      </div>
     );
 
   return (
