@@ -116,7 +116,7 @@ const Home: NextPage = () => {
                 {media.map(({ externalId }) => (
                   <Image
                     key={externalId}
-                    src={`https://pub-6a839333599b4921a1f2e53b7f0fdc23.r2.dev/${externalId}`}
+                    src={`${process.env.NEXT_PUBLIC_S3_URL}/${externalId}`}
                     alt={`Image for ${title}`}
                     height={200}
                     width={200}
