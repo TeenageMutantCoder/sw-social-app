@@ -54,4 +54,5 @@ Here are other things that I may add in the future:
 - [ ] Block users
 - [ ] Multimedia posts
 - [ ] Multimedia comments
+- [ ] Rich-text support
 - etc.
