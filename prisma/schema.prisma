@@ -8,9 +8,8 @@ generator client {
 datasource db {
     // NOTE: Uncomment the below line and comment out line 11 to for convenient local development
     // provider = "sqlite"
-    provider     = "mysql"
+    provider     = "postgresql"
     url          = env("DATABASE_URL")
-    relationMode = "prisma"
 }
 
 model User {
@@ -26,7 +25,7 @@ model Media {
     id          String @id @default(cuid())
     externalId  String
     contentType String
-    post        Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+    post        Post   @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     postId      String
 
     @@index([postId])
@@ -56,7 +55,7 @@ model Comment {
     userId           String
     post             Post              @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     postId           String
-    parent           Comment?          @relation("ParentChildComments", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    parent           Comment?          @relation("ParentChildComments", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
     parentId         String?
     children         Comment[]         @relation("ParentChildComments")
     createdAt        DateTime          @default(now())
