@@ -5,7 +5,7 @@ import { trpc } from '../utils/trpc';
 import { useRouter } from 'next/router';
 import { showAlert } from '../components/alert';
 import NewPostForm from '../components/new-post-form';
-import Image from 'next/legacy/image';
+import Image from 'next/image';
 import Spinner from '../components/spinner';
 import Button from '../components/button';
 import Reactions from '../components/reactions';

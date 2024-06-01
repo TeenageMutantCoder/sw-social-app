@@ -10,7 +10,7 @@ import Button from '../../components/button';
 import OwnerActions from '../../components/owner-actions';
 import Comments from '../../components/comments';
 import Form from '../../components/form';
-import Image from "next/legacy/image";
+import Image from 'next/image';
 import Spinner from '../../components/spinner';
 import Reactions from '../../components/reactions';
 
