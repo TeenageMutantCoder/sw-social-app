@@ -6,7 +6,7 @@ This is a social media web app that I am working on to develop my full-stack ski
 
 ### From web
 
-Visit [https://sw-social-app.vercel.app/](https://sw-social-app.vercel.app/)
+Visit [https://social.stevon.dev/](https://social.stevon.dev/)
 
 ### From source
 
